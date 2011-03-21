@@ -1,0 +1,16 @@
+<?php include "./conf.php"; ?>
+
+<html>
+<head>
+<title>Welcome Page</title>
+<link rel="stylesheet" href=style.css>
+</head>
+<body>
+<center><h1>Welcome to the WiGuard administration system.<br>
+If you do not belong here please navigate away from this page</h1>
+<br>
+This site is developed and maintained by Andy Zirkel.<br>
+version: <?php echo $version; ?>
+<center>
+</body>
+</html>
