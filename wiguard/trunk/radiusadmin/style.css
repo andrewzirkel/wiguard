@@ -1,0 +1,9 @@
+body {
+	background-color: lightblue
+}
+.meter .bar {
+	background-color: #496fc7;
+}
+	.meter .text {
+	color:#fff;
+}

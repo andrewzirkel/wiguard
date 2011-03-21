@@ -1,0 +1,6 @@
+Ubuntu
+- install php5-curl
+
+create form to open new window and display something:
+
+<form action="file.php" method="post" target="foo" onsubmit="window.open('', 'foo', 'width=450,height=300,status=yes,resizable=yes,scrollbars=yes')">
