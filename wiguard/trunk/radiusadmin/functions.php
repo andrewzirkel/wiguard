@@ -64,9 +64,16 @@ function addComputer($eth0,$eth1,$name) {
 	include "./conf.php";
 	$name = trim($name);
 	$name = substr($name,0,15);
+	if (queryComputer($eth0)) cleanComputerName($eth0);							//check for and remove name from old table "computername"
+	if (queryComputer($eth1)) cleanComputerName($eth1);
 	mysql_query("REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name')") or die(mysql_error());
 	$rows = mysql_affected_rows();
 	if ($rows == 1) return("$name Added to computername  "); else return("$name Updated in computername");
+}
+
+function cleanComputerName($mac) {
+	include "./conf.php";
+	mysql_query("DELETE FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die(mysql_error());
 }
 
 function deleteMac($mac) {

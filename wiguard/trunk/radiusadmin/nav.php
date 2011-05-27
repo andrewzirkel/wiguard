@@ -17,17 +17,15 @@ if (!isset($_SESSION["level"])) {
 	if ($_SESSION["level"] > 2) {
 		?>
 		<a href=auth/users.php target="right">Manage Users</a><br>
-                <a href=nas.php target="right">Manage Clients</a><br>
+    <a href=nas.php target="right">Manage Clients</a><br>
 		<?php 
 	}
 	if ($_SESSION["level"] > 1) {
 		?>
-		<a href=addMac.php target="right">Add MAC</a><br>
-		<a href=delete.php target="right">Delete MACs</a><br>
+		<a href=manageMac.php target="right">Manage MACs</a><br>
 		<?php 
 	}
 	if ($_SESSION["level"] > 0) {?>
-		<a href=list.php target="right">Show MACs</a><br>
 		<a href=viewLog.php target="right">View Log</a><br>
     <a href="serverStatus.php" target="right">Server Status</a><br>
 		<a href=welcome.php target="right">Home</a><br>
