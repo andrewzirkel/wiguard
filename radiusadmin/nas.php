@@ -55,7 +55,7 @@ if (!$rid && $_POST['add']!='1') echo "<tr><td></td><td></td><td></td><td><input
 ?>
 </table>
 <?php 
-if ($rid || $_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.rid.value=''\">")
+if ($rid || $_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.rid.value=''\">");
 ?>
 </form>
 </body>
