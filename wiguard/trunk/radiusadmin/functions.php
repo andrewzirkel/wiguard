@@ -109,12 +109,6 @@ function queryComputer($name) {
 	}else return($row["id"]);
 }
 
-function queryComputerID($eth0,$eth1,$name) {
-	include "./conf.php";
-	$result = queryComputer($name);
-	if ($result) return $result;
-}
-
 function queryName($mac) {
 	include "./conf.php";
 	$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$mac' OR WiMAC LIKE '$mac'";
@@ -136,15 +130,15 @@ function addComputer($eth0,$eth1,$name) {
 	addMac($eth0);
 	CleanComputerName($eth1);
 	addMac($eth1);
-	$id = queryComputerID($eth0,$eth1,$name); 
+	$id = queryComputer($name); 
 	if ($id == "") {
-		$updated = $true
+		$updated = false;
 		$result = mysql_query("SELECT MAX(id) FROM $wgdb.computers") or die(mysql_error());
 		$row = mysql_fetch_assoc($result);
 		$id = $row['MAX(id)']+1;
-	}
+	} else $updated = true;
 	mysql_query("REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)") or die(mysql_error());
-	if ($updated) return("$name Updated. "); else return("$name Added.  ")
+	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 
 function deleteComputer($target) {					//could be mac address or computer name
