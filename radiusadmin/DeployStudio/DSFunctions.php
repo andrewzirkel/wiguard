@@ -15,20 +15,33 @@ function DSGetAdminPass() {
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
 	$result = mysql_query($query) or die(mysql_error());
 	$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
-	return($recordArray['DSAdminPassowrd']);
+	return($recordArray['DSAdminPassword']);
 }
 
+//returns full url
+//take path to append
+function DSFormatURL($path) {
+	include '../conf.php';
+	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
+  $result = mysql_query($query) or die(mysql_error());
+  $recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+	return($recordArray['DSServerURL'] . "$path"); 
+}
+
+//returns retrieved data
+//takes url
 function DSGetURL($url) {
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-	$creds = DSGetAdminUser() . DSGetAdminPass();
-	curl_setopt($ch,CURLOPT_USERPWD,'$creds');
+	$creds = DSGetAdminUser() . ":" . DSGetAdminPass();
+	curl_setopt($ch,CURLOPT_USERPWD,"$creds");
 	$curlResult = curl_exec($ch);
 	curl_close($ch);
 	return $curlResult; 
 }
 
+//returns array from plist at $url
 function DSGetData($url) {
 	//CFPropertyList works with Apple plists
 	require_once('../classes/CFPropertyList/CFPropertyList.php');
@@ -45,7 +58,7 @@ function DSGetData($url) {
 	return $a;
 }
 
-function DSArrayToTable($a,$sub) {
+function DSArrayToTable($a,$sub=false) {
 	echo "<table>\n";
 	foreach ($a as $key => $element) {
 		if (is_array($element)) {
@@ -89,5 +102,16 @@ function DSArrayToPlist($a) {
 function DSCatPlist($plist) {
 	require_once('../classes/CFPropertyList/CFPropertyList.php');
 	return($plist->toXML(true));
+}
+
+//returns array of workflows
+function DSGetWorkflows() {
+	$url = DSFormatURL("workflows/get/all");
+	$workflows = DSGetData($url);
+	$a=array();
+	foreach ($workflows as $key => $element) {
+		$a[$key]=$element["title"];
+	}
+	return($a);
 }
 ?>
