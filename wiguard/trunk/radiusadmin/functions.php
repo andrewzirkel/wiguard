@@ -121,23 +121,34 @@ function queryName($mac) {
 	if ($row) return($row['ComputerName']);
 }
 
-function addComputer($eth0,$eth1,$name) {
+function addComputer($eth0,$eth1,$name,$id=null) {
 	include "./conf.php";
+	$updated = true;
 	$name = trim($name);
 	$name = substr($name,0,15);
+	if (! $id) {
+		//find matching tuple by mac address pair
+		$query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
+		$result = mysql_query($query);
+		$row = mysql_fetch_assoc($result);
+		if ($row == "") {
+			$updated = false;
+//	Shouldn't need this with auto increment
+//			$result = mysql_query("SELECT MAX(id) FROM $wgdb.computers") or die(mysql_error());
+//			$row = mysql_fetch_assoc($result);
+//			$id = $row['MAX(id)']+1;
+		} else {
+			$id = $row['id'];
+		}
+	} 
+	if ($id) $query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+	else $query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
+	mysql_query($query) or die(mysql_error());
 	//add macs to radius
 	CleanComputerName($eth0);
 	addMac($eth0);
 	CleanComputerName($eth1);
-	addMac($eth1);
-	$id = queryComputer($name); 
-	if ($id == "") {
-		$updated = false;
-		$result = mysql_query("SELECT MAX(id) FROM $wgdb.computers") or die(mysql_error());
-		$row = mysql_fetch_assoc($result);
-		$id = $row['MAX(id)']+1;
-	} else $updated = true;
-	mysql_query("REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)") or die(mysql_error());
+	addMac($eth1); 
 	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 

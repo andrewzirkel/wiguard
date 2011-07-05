@@ -7,6 +7,7 @@
 </head>
 <body style="font-family:Courier">
 <center>Simple listing of computers currently in database</center>
+<br>
 <?php
 include "./conf.php";
 /*

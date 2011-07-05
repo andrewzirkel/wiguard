@@ -3,11 +3,11 @@ include "auth/checkLevel2.php";
 include "./conf.php";
 include "./functions.php";
 
-function printRow($ETHMAC,$WiMAC,$ComputerName,$editFlag) {
+function printRow($id,$ETHMAC,$WiMAC,$ComputerName,$editFlag) {
 	if ($editFlag) {
-		printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\" value=\"%s\"></td><td><input type=\"text\" name=\"WiMAC\" value=\"%s\"</td><td><input type=\"text\" name=\"ComputerName\" value=\"%s\"</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"",$ETHMAC,$WiMAC,$ComputerName,$ComputerName);
+		printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\" value=\"%s\"></td><td><input type=\"text\" name=\"WiMAC\" value=\"%s\"</td><td><input type=\"text\" name=\"ComputerName\" value=\"%s\"</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"><input type=hidden name=id value=%d></td></tr>\n",$ETHMAC,$WiMAC,$ComputerName,$id);
 	} else {
-		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.create.value='%s'\"></td></tr>",$ETHMAC,$WiMAC,$ComputerName,$ComputerName);
+		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.create.value='%d'\"></td></tr>\n",$ETHMAC,$WiMAC,$ComputerName,$id);
 	}
 }
 
@@ -19,8 +19,8 @@ function search($text,$target) {
 		$query = "SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '%$text%' ORDER BY ComputerName";
 		$result = mysql_query($query) or die("$query -" . mysql_error());
 		while ($row = mysql_fetch_assoc($result)) {
-			if (strcmp($target,$row['ComputerName']) == 0) printRow($row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],TRUE);
-			else printRow($row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],FALSE);
+			if ($target == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],TRUE);
+			else printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],FALSE);
 			//printf("<tr><td>%s</td><td>%s</td><td>%s</td></tr>",$row['ETHMAC'],$row['WiMAC'],$row['ComputerName']);
 		}
 		mysql_free_result($result);	
@@ -30,8 +30,8 @@ function search($text,$target) {
 		$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC Like '$text' OR WiMAC like '$text' ORDER BY ComputerName";
 		$result = mysql_query($query) or die(mysql_error());
 		while ($row = mysql_fetch_assoc($result)) {
-			if ($target == $row['ComputerName']) printRow($row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],TRUE);
-			else printRow($row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],FALSE);
+			if ($id == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],TRUE);
+			else printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],FALSE);
 			//printf("<tr><td>%s</td><td></td><td>%s</td></tr>",$row['MACAddress'],$row['ComputerName']);
 		}
 		mysql_free_result($result);
@@ -44,7 +44,7 @@ if ($_POST['remove']) {
 	$create = "";
 }
 if ($create == "1") {
-	printf("%s<br>",addComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName']));
+	printf("%s<br>",addComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName'],$_POST['id']));
 	$create = "";
 }
 
@@ -73,9 +73,10 @@ if ($searchText) echo "<input type=text name=searchText value=\"$searchText\">";
 else echo "<input type=text name=searchText>";
 echo "<input type=\"Submit\" class=\"button\" value=\"Search\">";
 if (!$create && !$_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\">");
-echo "<br><br>";
-echo "<table border=1>";
-if ($_POST['add']=='1') printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\"></td><td><input type=\"text\" name=\"WiMAC\"</td><td><input type=\"text\" name=\"ComputerName\"></td><td><input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.create.value=''\">");
+echo "<br><br>\n";
+echo "<table border=1>\n";
+echo "<tr><th>ETH MAC</th><th>Wi MAC</th><th>Name</th><th></th></tr>\n";
+if ($_POST['add']=='1') printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\"></td><td><input type=\"text\" name=\"WiMAC\"</td><td><input type=\"text\" name=\"ComputerName\"></td><td><input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.create.value=''\">\n");
 if($searchText) search($searchText,$create);
 else search(NULL,$create);
 echo "</table>";

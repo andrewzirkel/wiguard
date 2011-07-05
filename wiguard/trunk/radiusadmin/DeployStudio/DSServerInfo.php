@@ -12,11 +12,7 @@ require_once('./DSFunctions.php');
 <center>Deploy Studio Server Info</center>
 
 <?php
-$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-$result = mysql_query($query) or die(mysql_error());
-$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
-
-$url = $recordArray['DSServerURL'] . "server/get/info";
+$url = DSFormatURL("server/get/info");
 $a = DSGetData($url);
 DSArrayToTable($a,$false);
 ?>
