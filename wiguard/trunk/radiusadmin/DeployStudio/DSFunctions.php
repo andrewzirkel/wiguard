@@ -1,10 +1,29 @@
 <?php
 
+//returns Admin User
+function DSGetAdminUser() {
+	include '../conf.php';
+	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
+	$result = mysql_query($query) or die(mysql_error());
+	$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+	return($recordArray['DSAdminUser']);
+}
+
+//returns Admin Pass
+function DSGetAdminPass() {
+	include '../conf.php';
+	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
+	$result = mysql_query($query) or die(mysql_error());
+	$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+	return($recordArray['DSAdminPassowrd']);
+}
+
 function DSGetURL($url) {
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-	curl_setopt($ch,CURLOPT_USERPWD,'dsadmin:#anubis666');
+	$creds = DSGetAdminUser() . DSGetAdminPass();
+	curl_setopt($ch,CURLOPT_USERPWD,'$creds');
 	$curlResult = curl_exec($ch);
 	curl_close($ch);
 	return $curlResult; 
@@ -43,5 +62,32 @@ function DSArrayToTable($a,$sub) {
 		}
 	}
 	echo "</table>\n";
+}
+
+//returns plist object
+//takes associative [multi] array, plist opbject
+function DSConstructPlist($a,&$plist,$dictKey=null,&$dictP=null) {
+	require_once('../classes/CFPropertyList/CFPropertyList.php');
+	$dict = new CFDictionary();
+	foreach ($a as $key => $element) {
+	  if (is_array($element)) DSConstructPlist($element,$plist,$key,$dict); else $dict->add($key,new CFString($element));
+	}
+	if ($dictKey) $dictP->add($dictKey,$dict); else $plist->add($dict);
+}
+
+//returns plist object
+//takes associative [multi] array
+function DSArrayToPlist($a) {
+	require_once('../classes/CFPropertyList/CFPropertyList.php');
+	$plist = new CFPropertyList();
+	DSConstructPlist($a,$plist);
+	return($plist);
+}
+
+//returns plist text
+//takes plist object
+function DSCatPlist($plist) {
+	require_once('../classes/CFPropertyList/CFPropertyList.php');
+	return($plist->toXML(true));
 }
 ?>
