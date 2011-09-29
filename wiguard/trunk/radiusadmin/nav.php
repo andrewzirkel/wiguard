@@ -38,6 +38,7 @@ if (!isset($_SESSION["level"])) {
 	<H4>Deploy Studio Integration</H4>
 		<a href=DeployStudio/DSConfig.php target="right">Config</a><br>
 		<a href=DeployStudio/DSServerInfo.php target="right">Server Status</a><br>
+		<a href=DeployStudio/DSGroups.php target="right">Workflow Mapping</a><br>
 		<hr>
 	<?php
 	}
