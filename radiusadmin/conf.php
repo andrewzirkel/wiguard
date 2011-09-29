@@ -1,9 +1,11 @@
 <?php
-$version="1.5e";
+$version="1.5f";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
 $dbpass="wiguard";
+
+$groupDelim='-';
 
 $procs=array("apache","radius","mysql");
 

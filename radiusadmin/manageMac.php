@@ -40,7 +40,7 @@ function search($text,$target) {
 
 $create = $_POST['create'];
 if ($_POST['remove']) {
-	printf("%s<br>",deleteComputer($_POST['ComputerName']));
+	printf("%s<br>",deleteComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName'],$_POST['id']));
 	$create = "";
 }
 if ($create == "1") {
