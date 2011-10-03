@@ -73,9 +73,14 @@ if ($searchText) echo "<input type=text name=searchText value=\"$searchText\">";
 else echo "<input type=text name=searchText>";
 echo "<input type=\"Submit\" class=\"button\" value=\"Search\">";
 if (!$create && !$_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\">");
-echo "<br><br>\n";
-echo "<table border=1>\n";
-echo "<tr><th>ETH MAC</th><th>Wi MAC</th><th>Name</th><th></th></tr>\n";
+?>
+<br><br>
+<table><tr><td><a href=list.php>Simple Listing of Computers</a></td>
+<td><a href=addMac.php target="right">Batch Add Computers</a></td>
+<td><a href=delete.php target="right">Batch Delete Computers</a></td></tr></table>
+<table border=1>
+<tr><th>ETH MAC</th><th>Wi MAC</th><th>Name</th><th></th></tr><br>
+<?php
 if ($_POST['add']=='1') printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\"></td><td><input type=\"text\" name=\"WiMAC\"</td><td><input type=\"text\" name=\"ComputerName\"></td><td><input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.create.value=''\">\n");
 if($searchText) search($searchText,$create);
 else search(NULL,$create);

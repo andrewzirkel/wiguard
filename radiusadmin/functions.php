@@ -163,7 +163,19 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 			$id = $row['id'];
 		}
 	} 
-	if ($id) $query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+	if ($id) {
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
+		$query="SELECT * FROM $wgdb.computers WHERE id=$id";
+		$result = mysql_query($query) or die("$query - " . mysql_error());
+		$row = mysql_fetch_assoc($result);
+		if (strcmp($row['ETHMAC'],$eth0) <> 0) {
+			chdir("DeployStudio");
+			include_once "DSFunctions.php";
+			DSDeleteComputer($row['ETHMAC']);
+			chdir("../");
+		}
+	}
 	else $query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
 	mysql_query($query) or die("$query - " . mysql_error());
 	//add macs to radius
@@ -172,8 +184,9 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 	CleanComputerName($eth1);
 	addMac($eth1);
 	chdir("DeployStudio");
-	include "DSFunctions.php";
+	include_once "DSFunctions.php";
 	DSaddComputer($name,$eth0);
+	chdir("../");
 	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 
@@ -185,6 +198,7 @@ function deleteComputer($eth0,$eth1,$ComputerName,$id=NULL) {
 		$result = mysql_query($query) or die("$query - " . mysql_error());
 		$row = mysql_fetch_assoc($result);
 		$id = $row['id'];
+		if(!$id) return("$ComputerName doesn't exit");
 	}
 	$query = "DELETE FROM $wgdb.computers WHERE id=$id";
 	mysql_query($query) or die("$query - " . mysql_error());
@@ -198,8 +212,9 @@ function deleteComputer($eth0,$eth1,$ComputerName,$id=NULL) {
 	deleteMac($eth1);
 	//remove from DeployStudio
 	chdir("DeployStudio");
-	include "DSFunctions.php";
+	include_once "DSFunctions.php";
 	DSDeleteComputer($eth0);
+	chdir("../");
 	return("$ComputerName removed.  ");
 
 /*		
