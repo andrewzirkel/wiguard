@@ -38,6 +38,11 @@ function DSFormatURL($path) {
 	return($recordArray['DSServerURL'] . "$path"); 
 }
 
+function DSNormalizeURL($url) {
+	$url = str_replace(" ", "%20", $url);
+	return($url);
+}
+
 //add ':' back into mac
 //returns formatted mac
 function DSFormatMac($mac) {
@@ -54,9 +59,11 @@ function DSParseGroup($name) {
 //returns retrieved data
 //takes url
 function DSGetURL($url) {
+	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+	curl_setopt($ch,CURLOPT_TIMEOUT,60);
 	$creds = DSGetAdminUser() . ":" . DSGetAdminPass();
 	curl_setopt($ch,CURLOPT_USERPWD,"$creds");
 	$curlResult = curl_exec($ch);
@@ -68,6 +75,7 @@ function DSGetURL($url) {
 //takes url and data (plain text plist)
 //returns error code
 function DSWriteData($url,$data=null) {
+	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml'));
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
