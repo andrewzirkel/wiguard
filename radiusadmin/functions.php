@@ -164,11 +164,14 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 		}
 	} 
 	if ($id) {
-		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
-		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
 		$query="SELECT * FROM $wgdb.computers WHERE id=$id";
 		$result = mysql_query($query) or die("$query - " . mysql_error());
 		$row = mysql_fetch_assoc($result);
+		//check if macs have changed, if so then delete from radcheck
+		if(strcmp($row['ETHMAC'],$eth0) <> 0) deleteMac($row['ETHMAC']);
+		if(strcmp($row['WiMAC'],$eth1) <> 0) deleteMac($row['WiMAC']);
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
 		if (strcmp($row['ETHMAC'],$eth0) <> 0) {
 			chdir("DeployStudio");
 			include_once "DSFunctions.php";
@@ -176,8 +179,17 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 			chdir("../");
 		}
 	}
-	else $query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
-	mysql_query($query) or die("$query - " . mysql_error());
+	else {
+		//check for duplicate macs and names
+		$dup=queryComputer($name);
+		if($dup) return("$name ERROR: Duplicate name.  ");
+		$dup=queryName($eth0);
+		if($dup) return("$name ERROR: $dup has $eth0.  ");
+		$dup=queryName($eth1);
+		if($dup) return("$name ERROR: $dup has $eth1.  ");
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
+		mysql_query($query) or die("$query - " . mysql_error());
+	}
 	//add macs to radius
 	CleanComputerName($eth0);
 	addMac($eth0);

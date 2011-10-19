@@ -1,9 +1,13 @@
 <?php
 function addClient($rid,$rclient, $rname, $rpassword) {
 	include "./conf.php";
-        //echo "$rclient, $rname, $rpassword";
-        if (!$rid) $query = "REPLACE INTO $radb.nas VALUES(NULL,'$rclient','$rname','other',NULL, '$rpassword',NULL,'RADIUS Client')";     //allow new db entries
+  //echo "$rclient, $rname, $rpassword";
+	if (!$rid) $query = "REPLACE INTO $radb.nas SET nasname='$rclient',shortname='$rname',type='other',secret='$rpassword',description='RADIUS Client'";
+	if ($rpassword) $query = "REPLACE INTO $radb.nas SET id='$rid',nasname='$rclient',shortname='$rname',type='other',secret='$rpassword',description='RADIUS Client'";
+	/*
+  if (!$rid) $query = "REPLACE INTO $radb.nas VALUES(NULL,'$rclient','$rname','other',NULL, '$rpassword',NULL,'RADIUS Client')";     //allow new db entries
 	if ($rpassword) $query = "REPLACE INTO $radb.nas VALUES('$rid','$rclient','$rname','other',NULL, '$rpassword',NULL,'RADIUS Client')";
+	*/
 	else $query = "UPDATE $radb.nas SET shortname='$rname' WHERE nasname='$rclient'";
         mysql_query($query) or die(mysql_error());
 }

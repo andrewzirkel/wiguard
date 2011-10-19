@@ -1,5 +1,5 @@
 <?php
-$version="2.0";
+$version="2.0.1";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
@@ -9,7 +9,7 @@ $groupDelim='-';
 
 $procs=array("apache","radius","mysql");
 
-mysql_connect(localhost,$dbuser,$dbpass);
+mysql_connect("localhost",$dbuser,$dbpass);
 /*$radbp=mysql_connect(localhost,$user,$password,true);
 mysql_select_db($radb,$radbp) or die("Unable to select database");
 $wgdbp=mysql_connect(localhost,$user,$password,true);
