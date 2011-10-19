@@ -53,7 +53,7 @@ function DSFormatMac($mac) {
 function DSParseGroup($name) {
 	include '../conf.php';
 	$a = explode($groupDelim,$name);
-	if (sizeof($a) > 1) return($a[0]);
+	if (sizeof($a) > 1) return(strtolower($a[0]));
 	else return(false);
 }
 //returns retrieved data

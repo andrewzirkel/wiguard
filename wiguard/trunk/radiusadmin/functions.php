@@ -108,6 +108,7 @@ function cleanComputerName($name) {
 }
 
 function queryComputer($name) {
+	if($name=="") return;
 	include "./conf.php";
 	$result = mysql_query("SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '$name'") or die("$query - " . mysql_error());
 	$row = mysql_fetch_assoc($result);
@@ -117,6 +118,7 @@ function queryComputer($name) {
 }
 
 function queryName($mac) {
+	if($mac=="") return;
 	include "./conf.php";
 	$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$mac' OR WiMAC LIKE '$mac'";
 	$result = mysql_query($query);
