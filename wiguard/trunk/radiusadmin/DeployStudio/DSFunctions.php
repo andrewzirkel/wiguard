@@ -193,6 +193,7 @@ function DSSyncWorkflows() {
 //
 function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 	include '../conf.php';
+	if(strcmp($DSWorkflow,"none")==0) $DSWorkflow = null;
 	if ($DSWorkflow) $query = "UPDATE $wgdb.DSGroups SET DSWorkflow='$DSWorkflow' WHERE id='$id'";
 	else $query = "UPDATE $wgdb.DSGroups SET DSWorkflow='null' WHERE id='$id'";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
@@ -303,6 +304,7 @@ function DSAddGroup($group) {
 }
 
 //returns True if groups create, false if not.
+//do we need this...groups are created when a mchine is added
 function DSGenerateGroups() {
 	include '../conf.php';
 	$created = false;

@@ -173,6 +173,7 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 		if(strcmp($row['ETHMAC'],$eth0) <> 0) deleteMac($row['ETHMAC']);
 		if(strcmp($row['WiMAC'],$eth1) <> 0) deleteMac($row['WiMAC']);
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+		mysql_query($query) or die("$query - " . mysql_error());
 		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
 		if (strcmp($row['ETHMAC'],$eth0) <> 0) {
 			chdir("DeployStudio");
