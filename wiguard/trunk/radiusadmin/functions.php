@@ -117,14 +117,14 @@ function queryComputer($name) {
 	}else return($row["id"]);
 }
 
-function queryName($mac,$current=false) {
+function queryName($mac,$legacy=true) {
 	if($mac=="") return;
 	include "./conf.php";
 	$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$mac' OR WiMAC LIKE '$mac'";
 	$result = mysql_query($query);
 	$row = mysql_fetch_assoc($result);
 	if ($row) return($row['ComputerName']);
-	if(!$current) {
+	if($legacy) {
 	  $query = "SELECT * FROM $wgdb.computername WHERE MACAddress LIKE '$mac'";
 	  $result = mysql_query($query);
 	  $row = mysql_fetch_assoc($result);
@@ -188,9 +188,9 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 		//check for duplicate macs and names
 		$dup=queryComputer($name);
 		if($dup) return("$name ERROR: Duplicate name.  ");
-		$dup=queryName($eth0,true);
+		$dup=queryName($eth0,false);
 		if($dup) return("$name ERROR: $dup has $eth0.  ");
-		$dup=queryName($eth1,true);
+		$dup=queryName($eth1,false);
 		if($dup) return("$name ERROR: $dup has $eth1.  ");
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
 		mysql_query($query) or die("$query - " . mysql_error());
