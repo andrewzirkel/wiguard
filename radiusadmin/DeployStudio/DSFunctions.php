@@ -383,23 +383,25 @@ function DSGetGroupSettings($DSGroup) {
 
 function DSAddComputer($name,$mac) {
 	include '../conf.php';
+	if($debug) echo "In DSAddComputers";
 	if (! (DSIntegration())) return;
 	$mac=DSFormatMac($mac);
 	//construct plist
-	$plist = array("dstudio-hostname" => "$name","dstudio-mac-addr" => "$mac");
+	$plist = array("dstudio-host-primary-key" => "dstudio-mac-addr","dstudio-hostname" => "$name","dstudio-mac-addr" => "$mac");
 	//determine group
 	$computerGroup = DSParseGroup($name);
 	if ($computerGroup) {
 			if(! DSAddGroup($computerGroup)){ //false if group not created, so must grab group data
 				$groupSettings = DSGetGroupSettings($computerGroup);
 				if ($groupSettings) $plist = array_merge($plist,$groupSettings);
-				//else echo "$computerGroup exists but no data found";
+				if($debug) echo "$computerGroup exists but no data found";
 			}
 	} else return; 		//not adding manchines without group data!
 	//write plist to DS Database
 	if ("$computerGroup") $plist["dstudio-group"] = $computerGroup;
 	$url = DSFormatURL("computers/set/entry?id=$mac");
-	//echo "<pre>" . DSCatPlist(DSArrayToPlist($plist)) . "<pre>";
+	if($debug) echo $url;
+	if($debug) echo "<pre>" . DSCatPlist(DSArrayToPlist($plist)) . "<pre>";
 	DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
 }
 
