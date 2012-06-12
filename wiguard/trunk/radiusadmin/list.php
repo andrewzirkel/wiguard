@@ -29,7 +29,7 @@ mysql_free_result($result);
 $query="SELECT * from $wgdb.computers ORDER BY $wgdb.computers.ComputerName";
 $result=mysql_query($query) or die(mysql_error());
 while ($row = mysql_fetch_assoc($result)) {
-	printf("%s,%s,%s<br>",$row['ETHMAC'],$row['WiMAC'],$row['ComputerName']);
+	printf("%s,%s,%s,%s<br>",$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn']);
 }
 mysql_free_result($result);
 //List computername table

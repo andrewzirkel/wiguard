@@ -132,7 +132,21 @@ function queryName($mac,$legacy=true) {
 	}
 }
 
-function addComputer($eth0,$eth1,$name,$id=null) {
+function querySN($sn) {
+	if($sn=="") return;
+	include "./conf.php";
+	$query = "SELECT * FROM $wgdb.computers WHERE sn LIKE '$sn'";
+	$result = mysql_query($query);
+	$row = mysql_fetch_assoc($result);
+	//if ($row) return("$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['id']");
+	if ($row) $a =array("ETHMAC" => $row['ETHMAC'],"WiMAC"=>$row['WiMAC'],"ComputerName" => $row['ComputerName'],"sn" => $row['sn'],"id" => $row['id']);
+	chdir("DeployStudio");
+	include_once "DSFunctions.php";
+	return(DSCatPlist(DSArrayToPlist($a)));
+	chdir("../");
+}
+
+function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 	include "./conf.php";
 	$updated = true;
 	$name = trim($name);
@@ -174,7 +188,7 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 		//check if macs have changed, if so then delete from radcheck
 		if(strcmp($row['ETHMAC'],$eth0) <> 0) deleteMac($row['ETHMAC']);
 		if(strcmp($row['WiMAC'],$eth1) <> 0) deleteMac($row['WiMAC']);
-		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',$id)";
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',$id)";
 		mysql_query($query) or die("$query - " . mysql_error());
 		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
 		if (strcmp($row['ETHMAC'],$eth0) <> 0) {
@@ -192,7 +206,7 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 		if($dup) return("$name ERROR: $dup has $eth0.  ");
 		$dup=queryName($eth1,false);
 		if($dup) return("$name ERROR: $dup has $eth1.  ");
-		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name',null)";
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',null)";
 		mysql_query($query) or die("$query - " . mysql_error());
 	}
 	//add macs to radius
@@ -202,12 +216,13 @@ function addComputer($eth0,$eth1,$name,$id=null) {
 	addMac($eth1);
 	chdir("DeployStudio");
 	include_once "DSFunctions.php";
-	DSaddComputer($name,$eth0);
+	//DSaddComputer($name,$eth0);
+	DSaddComputer($name,$sn);
 	chdir("../");
 	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 
-function deleteComputer($eth0,$eth1,$ComputerName,$id=NULL) {
+function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$id=NULL) {
 	include "./conf.php";
 	@mysql_select_db($wgdb) or die("$query - " . mysql_error());
 	if (!$id) {
@@ -230,7 +245,7 @@ function deleteComputer($eth0,$eth1,$ComputerName,$id=NULL) {
 	//remove from DeployStudio
 	chdir("DeployStudio");
 	include_once "DSFunctions.php";
-	DSDeleteComputer($eth0);
+	if ($sn) DSDeleteComputer($sn);
 	chdir("../");
 	return("$ComputerName removed.  ");
 
