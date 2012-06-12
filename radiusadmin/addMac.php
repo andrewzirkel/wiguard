@@ -27,6 +27,9 @@ if ($create == 1) {
 			case 3:
 				printf("%s<br>\n",addComputer($elementArray[0],$elementArray[1],trim($elementArray[2])));
 				break;
+			case 4:
+				printf("%s<br>\n",addComputer($elementArray[0],$elementArray[1],trim($elementArray[2]),trim($elementArray[3])));
+				break;
 			default:
 				echo ("Invalid Row: $line");
 		}

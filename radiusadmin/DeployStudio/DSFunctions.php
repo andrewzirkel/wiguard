@@ -381,6 +381,7 @@ function DSGetGroupSettings($DSGroup) {
 	return($data);
 }
 
+/*
 function DSAddComputer($name,$mac) {
 	include '../conf.php';
 	if($debug) echo "In DSAddComputers";
@@ -404,7 +405,34 @@ function DSAddComputer($name,$mac) {
 	if($debug) echo "<pre>" . DSCatPlist(DSArrayToPlist($plist)) . "<pre>";
 	DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
 }
+*/
 
+//deploy studio now keys off of serial number
+function DSAddComputer($name,$sn) {
+	include '../conf.php';
+	if($debug) echo "In DSAddComputers";
+	if (! (DSIntegration())) return;
+	//construct plist
+	$plist = array("dstudio-host-primary-key" => "dstudio-host-serial-number","dstudio-hostname" => "$name","dstudio-host-serial-number" => "$sn");
+	//determine group
+	$computerGroup = DSParseGroup($name);
+	if ($computerGroup) {
+		if(! DSAddGroup($computerGroup)){
+			//false if group not created, so must grab group data
+			$groupSettings = DSGetGroupSettings($computerGroup);
+			if ($groupSettings) $plist = array_merge($plist,$groupSettings);
+			if($debug) echo "$computerGroup exists but no data found";
+		}
+	} else return; 		//not adding manchines without group data!
+	//write plist to DS Database
+	if ("$computerGroup") $plist["dstudio-group"] = $computerGroup;
+	$url = DSFormatURL("computers/set/entry?id=$sn");
+	if($debug) echo $url;
+	if($debug) echo "<pre>" . DSCatPlist(DSArrayToPlist($plist)) . "<pre>";
+	DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
+}
+
+/*
 function DSDeleteComputer($mac) {
 	include '../conf.php';
 	if (! (DSIntegration())) return;
@@ -412,8 +440,18 @@ function DSDeleteComputer($mac) {
 	$url = DSFormatURL("computers/del/entry?id=$mac");
 	DSWriteData($url,NULL);
 }
+*/
+
+function DSDeleteComputer($sn) {
+	include '../conf.php';
+	if (! (DSIntegration())) return;
+	//$mac=DSFormatMac($mac);
+	$url = DSFormatURL("computers/del/entry?id=$sn");
+	DSWriteData($url,NULL);
+}
 
 //Master sync function, ensures all wiguard data is in DS
+/*
 function DSSync() {
 	include '../conf.php';
 	//Sync Computers
@@ -428,4 +466,21 @@ function DSSync() {
 		DSAddComputer($computer['ComputerName'],$computer['ETHMAC']);
 	}
 }
+*/
+
+function DSSync() {
+	include '../conf.php';
+	//Sync Computers
+	$query = "SELECT * FROM $wgdb.computers";
+	$result = mysql_query($query) or die("$query - " . mysql_error());
+	while($computer = mysql_fetch_assoc($result)) {
+		//construct array
+		if($computer['sn']=="") continue;
+		//$mac = DSFormatMac($computer['ETHMAC']);
+		//DSComputers = DSGetComputers();
+		//if (! array_key_exists($mac,$DSComputers)) continue;	//computer already defined--does this matter?
+		DSAddComputer($computer['ComputerName'],$computer['sn']);
+	}
+}
+
 ?>
