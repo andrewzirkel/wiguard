@@ -167,20 +167,18 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 		}
 	}
 	if (! $id) {
-		//find matching tuple by mac address pair
-		$query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
-		$result = mysql_query($query);
-		$row = mysql_fetch_assoc($result);
-		if ($row == "") {
-			$updated = false;
-//	Shouldn't need this with auto increment
-//			$result = mysql_query("SELECT MAX(id) FROM $wgdb.computers") or die("$query - " . mysql_error());
-//			$row = mysql_fetch_assoc($result);
-//			$id = $row['MAX(id)']+1;
-		} else {
-			$id = $row['id'];
-		}
-	} 
+		//find matching tuple by mac address pair unless null
+		if ($eth0 || $eth1) {
+		  $query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
+		  $result = mysql_query($query);
+		  $row = mysql_fetch_assoc($result);
+		  if ($row == "") {
+			  $updated = false;
+		  } else {
+			  $id = $row['id'];
+		  }
+		} else { $updated = false; }
+	}
 	if ($id) {
 		$query="SELECT * FROM $wgdb.computers WHERE id=$id";
 		$result = mysql_query($query) or die("$query - " . mysql_error());
