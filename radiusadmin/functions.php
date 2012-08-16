@@ -168,7 +168,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 	}
 	if (! $id) {
 		//find matching tuple by mac address pair unless null
-		if ($eth0 || $eth1) {
+		if ($eth0 && $eth1) {
 		  $query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
 		  $result = mysql_query($query);
 		  $row = mysql_fetch_assoc($result);
@@ -208,9 +208,9 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 		mysql_query($query) or die("$query - " . mysql_error());
 	}
 	//add macs to radius
-	CleanComputerName($eth0);
+	DeleteComputerName($eth0);
 	addMac($eth0);
-	CleanComputerName($eth1);
+  DeleteComputerName($eth1);
 	addMac($eth1);
 	chdir("DeployStudio");
 	include_once "DSFunctions.php";
@@ -224,11 +224,19 @@ function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$id=NULL) {
 	include "./conf.php";
 	@mysql_select_db($wgdb) or die("$query - " . mysql_error());
 	if (!$id) {
-		$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0'";
-		$result = mysql_query($query) or die("$query - " . mysql_error());
-		$row = mysql_fetch_assoc($result);
-		$id = $row['id'];
-		if(!$id) return("$ComputerName doesn't exit");
+		if ($sn) {
+			$query = "SELECT * FROM $wgdb.computers WHERE sn LIKE '$sn'";
+			$result = mysql_query($query) or die("$query - " . mysql_error());
+			$row = mysql_fetch_assoc($result);
+			$id = $row['id'];
+			if(!$id) return("$ComputerName with sn $sn doesn't exit");
+		} else {
+			$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0'";
+			$result = mysql_query($query) or die("$query - " . mysql_error());
+			$row = mysql_fetch_assoc($result);
+			$id = $row['id'];
+			if(!$id) return("$ComputerName doesn't exit");
+		}
 	}
 	$query = "DELETE FROM $wgdb.computers WHERE id=$id";
 	mysql_query($query) or die("$query - " . mysql_error());
