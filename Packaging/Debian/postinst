@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#echo starting postinst
+##get mysql pw
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+db_get wiguard/mysqlpass && mysqlpass="$RET"
+
+echo loading schemas
+cp /etc/freeradius/sql/mysql/schema.sql /tmp/WiGuard/
+chmod a+r /tmp/WiGuard/schema.sql
+cp /etc/freeradius/sql/mysql/nas.sql /tmp/WiGuard/
+chmod a+r /tmp/WiGuard/nas.sql
+mysql -u root -p$mysqlpass  < /tmp/WiGuard/createradiusdb.sql
+mysql -u root -p$mysqlpass  radius < /tmp/WiGuard/schema.sql || true
+mysql -u root -p$mysqlpass  radius < /tmp/WiGuard/nas.sql || true
+mysql -u root -p$mysqlpass  < /tmp/WiGuard/wiguardSchema.sql
+mysql -u root -p$mysqlpass  < /tmp/WiGuard/users.sql || true
+mysql -u root -p$mysqlpass  < /tmp/WiGuard/initialValues.sql
+/usr/bin/php /var/www/radiusadmin/init.php
+
+echo unset password
+#db_purge
+db_set wiguard/mysqlpass ""
+rm -rf /tmp/WiGuard
+
+echo Backup radiusd conf files to .save
+cp /etc/freeradius/radiusd.conf /etc/freeradius/radiusd.save
+cp /etc/freeradius/sql.conf	/etc/freeradius/sql.save
+echo Configure Radius
+echo uncomment sql.conf in radiusd.conf
+sed -i "/sql.conf/ s/# *//" /etc/freeradius/radiusd.conf
+echo enable logging in radiusd.conf
+sed -i "s/auth =.*/auth = yes/" /etc/freeradius/radiusd.conf
+sed -i "s/auth_badpass =.*/auth_badpass = yes/" /etc/freeradius/radiusd.conf
+echo setting credentials in sql.conf
+sed -i "/login/ s/\".*\"/\"radius\"/" /etc/freeradius/sql.conf
+sed -i "/password/ s/\".*\"/\"radius\"/" /etc/freeradius/sql.conf
+echo enabling reading clients from nas table
+sed -i "/readclients =/ s/#//" /etc/freeradius/sql.conf
+echo enable sql module in default site
+sed -i "/authorize {/,/^}/ { /sql/ s/^# *//}" /etc/freeradius/sites-available/default
+
+result=`grep macaddress_user_rewrite /etc/freeradius/modules/attr_rewrite`
+if [ ! "$result" ]; then
+cat >> /etc/freeradius/modules/attr_rewrite <<	"EOF"
+     attr_rewrite macaddress_user_rewrite {
+                 attribute = User-Name
+                 searchin = packet
+                 searchfor = "-"
+                 replacewith = ""
+                 new_attribute = no
+                 append = no
+         }
+EOF
+fi
+result=`grep macaddress_password_rewrite /etc/freeradius/modules/attr_rewrite`
+if [ ! "$result" ]; then
+cat >> /etc/freeradius/modules/attr_rewrite << "EOF"
+     attr_rewrite macaddress_password_rewrite {
+                attribute = User-Password
+                searchin = packet
+                searchfor = "-"
+                replacewith = ""
+                new_attribute = no
+                append = no
+        }
+EOF
+fi
+
+echo Restarting Apache
+apachectl restart
+echo Please restart FreeRadius: /etc/init.d/freeradius restart
+#For some reason this hangs the script
+#/etc/init.d/freeradius restart
+
+exit 0

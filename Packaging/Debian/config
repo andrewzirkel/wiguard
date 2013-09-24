@@ -1,0 +1,18 @@
+#!/bin/bash -e
+
+echo starting config
+##get mysql pw
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+db_reset wiguard/mysqlpass || true
+db_input high wiguard/mysqlpass || true
+echo displaying debconf
+db_go || true
+db_get wiguard/mysqlpass
+if [ "$RET" == "" ]; then
+  echo No Password entered.
+fi
+echo exiting config
+
+exit 0
