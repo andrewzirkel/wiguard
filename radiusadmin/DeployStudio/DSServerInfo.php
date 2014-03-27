@@ -14,7 +14,7 @@ require_once('./DSFunctions.php');
 <?php
 $url = DSFormatURL("server/get/info");
 $a = DSGetData($url);
-DSArrayToTable($a,$false);
+DSArrayToTable($a,false);
 ?>
 
 </body>
