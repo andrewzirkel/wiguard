@@ -10,7 +10,7 @@
 include "../conf.php";
 include "./DSFunctions.php";
 
-if ($_POST['update']=='1'){
+if (isset($_POST['update']) && $_POST['update']=='1'){
 	$v1=$_POST['DSServerURL'];
 	$v2=$_POST['DSAdminUser'];
 	$v3=$_POST['DSAdminPassword'];
@@ -37,16 +37,16 @@ $result = mysql_query($query) or die(mysql_error());
 <?php
 $recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
 if ($recordArray['DSIntegrate']) {
-	if ($_POST['modify']) $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 checked>";
+	if (isset($_POST['modify'])) $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 checked>";
 	else $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 disabled checked>";
 } else {
-	if ($_POST['modify']) $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1>";
+	if (isset($_POST['modify'])) $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1>";
 	else $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 disabled>";	
 }
-if ($_POST['modify']) printf("<tr bgcolor=red><td><input type=\"text\" name=\"DSServerURL\" value=\"%s\"></td><td><input type=\"text\" name=\"DSAdminUser\" value=\"%s\"></td><td><input type=\"password\" name=\"DSAdminPassword\"></td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.update.value='1'\"></td></tr>\n",$recordArray['DSServerURL'],$recordArray['DSAdminUser'],$integrateCheckbox);
+if (isset($_POST['modify'])) printf("<tr bgcolor=red><td><input type=\"text\" name=\"DSServerURL\" value=\"%s\"></td><td><input type=\"text\" name=\"DSAdminUser\" value=\"%s\"></td><td><input type=\"password\" name=\"DSAdminPassword\"></td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.update.value='1'\"></td></tr>\n",$recordArray['DSServerURL'],$recordArray['DSAdminUser'],$integrateCheckbox);
 	else printf("<tr><td>%s</td><td>%s</td><td>****</td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.modify.value=1\"></td></tr>\n",$recordArray['DSServerURL'],$recordArray['DSAdminUser'],$integrateCheckbox);
 echo "</table>";
-if ($_POST['modify']) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.modify.value=''\">");
+if (isset($_POST['modify'])) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.modify.value=''\">");
 ?>
 </form>
 </body>

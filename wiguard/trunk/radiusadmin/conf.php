@@ -1,10 +1,10 @@
 <?php
-$version="2.0.5d";
+$version="2.0.5e";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
 $dbpass="wiguard";
-$debug=$false;
+$debug=false;
 
 $groupDelim='-';
 
