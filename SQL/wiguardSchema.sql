@@ -1,13 +1,11 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-CREATE SCHEMA IF NOT EXISTS `wiguard` DEFAULT CHARACTER SET latin1 ;
-USE `wiguard` ;
+ALTER SCHEMA `wiguard`  DEFAULT CHARACTER SET latin1  DEFAULT COLLATE latin1_swedish_ci ;
 
--- -----------------------------------------------------
--- Table `wiguard`.`DSConfig`
--- -----------------------------------------------------
+USE `wiguard`;
+
 CREATE  TABLE IF NOT EXISTS `wiguard`.`DSConfig` (
   `ID` INT(11) NOT NULL AUTO_INCREMENT ,
   `DSServerURL` TEXT NULL DEFAULT NULL ,
@@ -20,50 +18,16 @@ AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = latin1
 COLLATE = latin1_swedish_ci;
 
-
--- -----------------------------------------------------
--- Table `wiguard`.`auth`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `wiguard`.`auth` (
-  `user` VARCHAR(20) NOT NULL ,
-  `password` LONGTEXT NULL DEFAULT NULL ,
-  `level` INT(11) NOT NULL ,
-  PRIMARY KEY (`user`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8, 
-COMMENT = 'Authorized rdius administrators' ;
-
-
--- -----------------------------------------------------
--- Table `wiguard`.`computername`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `wiguard`.`computername` (
-  `MACAddress` VARCHAR(12) NOT NULL ,
-  `ComputerName` TEXT NOT NULL ,
-  PRIMARY KEY (`MACAddress`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8, 
-COMMENT = 'Store Computer Names' ;
-
-
--- -----------------------------------------------------
--- Table `wiguard`.`computers`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `wiguard`.`computers` (
-  `ETHMAC` VARCHAR(12) NULL DEFAULT NULL ,
-  `WiMAC` VARCHAR(12) NULL DEFAULT NULL ,
-  `ComputerName` TEXT NOT NULL ,
+CREATE  TABLE IF NOT EXISTS `wiguard`.`DSGroups` (
   `id` INT(11) NOT NULL AUTO_INCREMENT ,
+  `DSGroup` VARCHAR(45) NOT NULL ,
+  `DSWorkflow` VARCHAR(45) NULL DEFAULT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 47
+AUTO_INCREMENT = 539
 DEFAULT CHARACTER SET = latin1
 COLLATE = latin1_swedish_ci;
 
-
--- -----------------------------------------------------
--- Table `wiguard`.`DSWorkflows`
--- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `wiguard`.`DSWorkflows` (
   `ID` VARCHAR(45) NOT NULL ,
   `description` LONGTEXT NULL DEFAULT NULL ,
@@ -74,20 +38,33 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1
 COLLATE = latin1_swedish_ci;
 
+CREATE  TABLE IF NOT EXISTS `wiguard`.`auth` (
+  `user` VARCHAR(20) NOT NULL ,
+  `password` LONGTEXT NULL DEFAULT NULL ,
+  `level` INT(11) NOT NULL ,
+  PRIMARY KEY (`user`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = ' /* comment truncated */ /*Authorized rdius administrators*/';
 
--- -----------------------------------------------------
--- Table `wiguard`.`DSGroups`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `wiguard`.`DSGroups` (
+CREATE  TABLE IF NOT EXISTS `wiguard`.`computername` (
+  `MACAddress` VARCHAR(12) NOT NULL ,
+  `ComputerName` TEXT NOT NULL ,
+  PRIMARY KEY (`MACAddress`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COMMENT = ' /* comment truncated */ /*Store Computer Names*/';
+
+CREATE  TABLE IF NOT EXISTS `wiguard`.`computers` (
+  `ETHMAC` VARCHAR(12) NULL DEFAULT NULL ,
+  `WiMAC` VARCHAR(12) NULL DEFAULT NULL ,
+  `ComputerName` TEXT NOT NULL ,
+  `sn` VARCHAR(45) NULL DEFAULT NULL ,
   `id` INT(11) NOT NULL AUTO_INCREMENT ,
-  `DSGroup` VARCHAR(45) NOT NULL ,
-  `DSWorkflow` VARCHAR(45) NULL DEFAULT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-AUTO_INCREMENT = 451
 DEFAULT CHARACTER SET = latin1
 COLLATE = latin1_swedish_ci;
-
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -159,6 +159,7 @@ DROP TABLE IF EXISTS `computers`;
 CREATE TABLE `computers` (
   `ETHMAC` varchar(12) DEFAULT NULL,
   `WiMAC` varchar(12) DEFAULT NULL,
+  `sn` varchar(45) DEFAULT NULL,
   `ComputerName` text NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
