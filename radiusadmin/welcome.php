@@ -8,7 +8,7 @@
 <body>
 <center><h1>Welcome to the WiGuard administration system.</h1>
 <br><hr><br>
-Copyright (C) 2009 Andrew Zirkel<br>
+Copyright (C) 2013 Andrew Zirkel<br>
 <br>
 This program is free software; you can redistribute it and/or<br>
 modify it under the terms of the GNU General Public License<br>
@@ -20,6 +20,6 @@ This site is developed and maintained by Andrew Zirkel.<br>
 <?php
 echo "WiGuard Version: $version.";
 ?>
-<center>
+</center>
 </body>
 </html>

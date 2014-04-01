@@ -2,7 +2,7 @@ Packaging notes
 
 Decompile .deb
 dpkg-deb --extract wiguard.deb wiguard
-dpkg-deb -e wiguard.dev wiguard/DEBIAN
+dpkg-deb -e wiguard.deb wiguard/DEBIAN
 
-Compile .dev
+Compile .deb
 dpkg-deb -b wiguard
