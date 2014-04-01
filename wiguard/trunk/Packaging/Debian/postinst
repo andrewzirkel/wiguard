@@ -75,4 +75,7 @@ echo Please restart FreeRadius: /etc/init.d/freeradius restart
 #For some reason this hangs the script
 #/etc/init.d/freeradius restart
 
+echo Settings permissions on /var/log/freeradius
+chmod a+rx /var/log/freeradius
+
 exit 0

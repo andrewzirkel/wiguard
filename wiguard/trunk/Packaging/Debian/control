@@ -2,10 +2,11 @@ Package: WiGuard
 Version: 2.0
 Section: net
 Priority: optional
+Installed-Size: 1024
 Architecture: all
 Essential: no
 Depends: debconf, freeradius, freeradius-mysql, mysql-server, apache2, php5-mysql, libapache2-mod-php5, php5
 Recommends: firefox
-Maintainer: Andy Zirkel <andrewzirkel@gmail.com>
+Maintainer: Andrew Zirkel <andrewzirkel@gmail.com>
 Description: WiGuard
 	Wiguard is a network authentication and deployment system.
