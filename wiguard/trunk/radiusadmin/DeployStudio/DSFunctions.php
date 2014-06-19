@@ -112,7 +112,7 @@ function DSArrayToTable($a,$sub=false) {
 		if (is_array($element)) {
 			echo "<tr><td collspan=2>" . $key;
 			echo "<ul>\n";
-			DSArrayToTable($element,$true);
+			DSArrayToTable($element,true);
 			echo "</ul></tr>\n";
 		} else {
 			echo "<tr><td>";
@@ -204,8 +204,8 @@ function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 		$url=DSFormatURL("computers/groups/set/entry")."?id=".$row['DSGroup'];
 		//get current group data
 		$computers=DSGetComputers();
-		if (! is_array($computers['groups'])) break;
-		if (! is_array($computers['groups'][$row['DSGroup']])) break;
+		if (! is_array($computers['groups'])) return;
+		if (! is_array($computers['groups'][$row['DSGroup']])) return;
 		/*
 		$data=array("CN" => "",
 		"dstudio-auto-started-workflow" => "$DSWorkflow",
@@ -305,11 +305,12 @@ function DSAddGroup($group) {
 
 //returns True if groups create, false if not.
 //do we need this...groups are created when a mchine is added
+//we do to clear stale groups...maybe break that out?
 function DSGenerateGroups() {
 	include '../conf.php';
 	$created = false;
 	$groups=array();
-	//get computer tuples	
+	//get computer tuples
 	$query = "SELECT * FROM $wgdb.computers";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
 	while($computer = mysql_fetch_assoc($result)) {
@@ -329,6 +330,20 @@ function DSGenerateGroups() {
 		}
 	}
 	return($created);
+}
+
+function DSClearStaleGroups() {
+	include '../conf.php';
+	$computers=DSGetComputers();
+	if (! is_array($computers['groups'])) return;
+	$query = "SELECT * FROM $wgdb.DSGroups";
+	$result = mysql_query($query) or die("$query - " . mysql_error());
+	while ($currentGroup = mysql_fetch_assoc($result)) {
+		if (!array_key_exists($currentGroup[DSGroup],$computers['groups'])) {
+			$query = "DELETE FROM $wgdb.DSGroups where id=$currentGroup[id]";
+			mysql_query($query) or die("$query - " . mysql_error());
+		}
+	}
 }
 
 //Sync group settings from DS (default workflow)

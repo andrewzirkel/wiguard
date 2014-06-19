@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ip="172.17.17.2"
+ip="192.168.188.137"
 
 #ubuntu
 rsync -ruv --exclude 'Docs' --exclude 'test' --exclude '.*' --exclude 'nbproject' --exclude '*~' radiusadmin root@$ip:/var/www/

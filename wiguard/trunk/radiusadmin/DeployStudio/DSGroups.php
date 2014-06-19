@@ -54,6 +54,7 @@ if ($_POST['sync']) {
 <?php
 DSSyncWorkflows();
 DSSyncGroupData();
+DSClearStaleGroups();
 $workflows = DSGetWorkflows();
 $query = "SELECT * FROM $wgdb.DSGroups ORDER BY DSGroup";
 $result = mysql_query($query) or die("$query - " . mysql_error());
@@ -64,10 +65,10 @@ while($row = mysql_fetch_assoc($result)) {
 ?>
 </table>
 <?php 
-/*
-if (DSGenerateGroups()) echo"<br>New groups available.  Please refresh.  <input type=button value=\"refresh\" onClick=\"window.location.reload()\">";
-else if (!$edit) echo "<input type=button value=\"refresh\" onClick=\"this.form.sync.value=1\">";
-*/
+
+//if (DSGenerateGroups()) echo"<br>New groups available.  Please refresh.  <input type=button value=\"refresh\" onClick=\"window.location.reload()\">";
+//else if (!$edit) echo "<input type=button value=\"refresh\" onClick=\"this.form.sync.value=1\">";
+
 if (!$edit) echo "<input type=button value=\"refresh\" onClick=\"window.location.reload()\">";
 else echo"<input type=button value=\"cancel\" onClick=\"window.location.reload()\">"
 
