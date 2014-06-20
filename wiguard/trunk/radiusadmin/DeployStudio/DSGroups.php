@@ -1,4 +1,10 @@
-<?php include "../auth/checkLevel1.php";
+<?php include "../auth/checkLevel1.php";?>
+<html>
+<head>
+<title>Manage Group Workflow Settings</title>
+<link rel="stylesheet" href=../style.css>
+</head>
+<?php
 include '../conf.php';
 require_once('./DSFunctions.php');
 
@@ -27,23 +33,21 @@ function printRow($id,$group,$workflowid,$workflows,$editFlag) {
 	}
 }
 
-$edit = $_POST['edit'];
+if (isset($_POST['edit'])) {$edit = $_POST['edit'];}else{$edit=null;}
+
 if ($edit == 1) {
 	DSSetWorkflow($_POST['id'],$_POST['workflow']);
 	$edit=null;
+	echo '<script language="javascript">location.reload();</script>';
 }
 
+/*
 if ($_POST['sync']) {
 	//DSSync();
 }
-
+*/
 ?>
 
-<html>
-<head>
-<title>Manage Group Workflow Settings</title>
-<link rel="stylesheet" href=../style.css>
-</head>
 <body style="font-family:Courier">
 <center>Deploy Studio Server Workflow Settings</center>
 <form method="post">
