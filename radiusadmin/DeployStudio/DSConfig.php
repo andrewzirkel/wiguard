@@ -20,13 +20,12 @@ if (isset($_POST['update']) && $_POST['update']=='1'){
 	$v1=$_POST['DSServerURL'];
 	$v2=$_POST['DSAdminUser'];
 	$v3=$_POST['DSAdminPassword'];
-	if ($_POST['DSIntegrate']) $v4=1; else $v4 = 0;
+	if (isset($_POST['DSIntegrate']) && $_POST['DSIntegrate']) $v4=1; else $v4 = 0;
 	$query = "REPLACE INTO $wgdb.DSConfig SET ID='1',DSServerURL='$v1',DSAdminUser='$v2',DSAdminPassword='$v3',DSIntegrate='$v4'";
   mysql_query($query) or die(mysql_error());
-  if ($_POST['DSIntegrate']) {
+  if (isset($_POST['DSIntegrate']) && $_POST['DSIntegrate']) {
   	echo "Synchronizing to DeployStudio...";
   	DSSync();
-  	echo "Done.\n";
   }
 }
 

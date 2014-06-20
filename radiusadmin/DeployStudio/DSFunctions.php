@@ -185,7 +185,7 @@ function DSSyncWorkflows() {
 	}
 	foreach ($workflows as $key => $element) {
 		$query = "REPLACE INTO $wgdb.DSWorkflows SET ID=\"$key\",description=\"" . $element['description'] . "\",title=\"" . $element['title'] . "\"";
-		if ($element['group']) $query = $query . ",DSWorkflows.group=\"" . $element['group'] . "\"";
+		if (array_key_exists('group',$element)) $query = $query . ",DSWorkflows.group=\"" . $element['group'] . "\"";
 		mysql_query($query) or die("$query - " . mysql_error());
 	}
 }
@@ -198,6 +198,12 @@ function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 	else $query = "UPDATE $wgdb.DSGroups SET DSWorkflow='null' WHERE id='$id'";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
 	if ($updateDS) {
+	echo <<<EOM
+<!-- Progress bar holder -->
+<div id="progress" style="width:500px;border:1px solid #ccc;"></div>
+<!-- Progress information -->
+<div id="information" style="width"></div>
+EOM;
 		$query = "SELECT * FROM $wgdb.DSGroups WHERE id=$id";
 		$result = mysql_query($query) or die("$query - " . mysql_error());
 		$row = mysql_fetch_assoc($result);
@@ -247,13 +253,27 @@ function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 		//echo "<pre>" . DSCatPlist(DSArrayToPlist($data)) . "</pre>";
 		DSWriteData($url,DSCatPlist(DSArrayToPlist($data)));
 		//set computer data (...because this is something the client would handle...)
+		$pbtotal=count($computers['computers']);
+		$pbcount=0;
 		foreach ($computers['computers'] as $key => $element) {
+			$pbcount++;
+			$pbpercent=intval($pbcount/$pbtotal * 100)."%";
+			$pbinfo="Processing " . $element['dstudio-hostname'];
+			echo '<script language="javascript">
+    document.getElementById("progress").innerHTML="<div style=\"width:'.$pbpercent.';background-image:url(../assets/pbar-ani.gif);\">&nbsp;</div>";
+    document.getElementById("information").innerHTML="'.$pbinfo.'";
+    </script>';
 			if (strcmp($element['dstudio-group'],$row['DSGroup']) == 0) {
 				$url=DSFormatURL("computers/set/entry")."?id=".$key;
 				$element["dstudio-auto-started-workflow"] = "$DSWorkflow";
 				DSWriteData($url,DSCatPlist(DSArrayToPlist($element)));
 			}
+			echo str_repeat(' ',1024*64);
+			// Send output to browser immediately
+			flush();
 		}
+		// Tell user that the process is completed
+		echo '<script language="javascript">document.getElementById("information").innerHTML="Process completed"</script>';
 	}
 }
 
@@ -324,7 +344,7 @@ function DSGenerateGroups() {
 	$query = "SELECT * FROM $wgdb.DSGroups";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
 	while ($currentGroup = mysql_fetch_assoc($result)) {
-		if (!in_array($currentGroup[DSGroup],$groups)) {
+		if (!in_array($currentGroup['DSGroup'],$groups)) {
 			$query = "DELETE FROM $wgdb.DSGroups where id=$currentGroup[id]";
 			mysql_query($query) or die("$query - " . mysql_error());
 		}
@@ -339,7 +359,7 @@ function DSClearStaleGroups() {
 	$query = "SELECT * FROM $wgdb.DSGroups";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
 	while ($currentGroup = mysql_fetch_assoc($result)) {
-		if (!array_key_exists($currentGroup[DSGroup],$computers['groups'])) {
+		if (!array_key_exists($currentGroup['DSGroup'],$computers['groups'])) {
 			$query = "DELETE FROM $wgdb.DSGroups where id=$currentGroup[id]";
 			mysql_query($query) or die("$query - " . mysql_error());
 		}
@@ -353,7 +373,7 @@ function DSSyncGroupData() {
 	foreach ($computers['groups'] as $key => $element) {
 		$groupTuple = DSQueryGroup($key);
 		if ($groupTuple) {
-			if ($element['dstudio-auto-started-workflow']) DSSetWorkflow($groupTuple['id'],$element['dstudio-auto-started-workflow'],false);
+			if (array_key_exists('dstudio-auto-started-workflow',$element)) DSSetWorkflow($groupTuple['id'],$element['dstudio-auto-started-workflow'],false);
 			else DSSetWorkflow($groupTuple['id'],null,false);
 		}
 	}
@@ -486,16 +506,37 @@ function DSSync() {
 function DSSync() {
 	include '../conf.php';
 	//Sync Computers
+	echo <<<EOM
+<!-- Progress bar holder -->
+<div id="progress" style="width:500px;border:1px solid #ccc;"></div>
+<!-- Progress information -->
+<div id="information" style="width"></div>
+EOM;
 	$query = "SELECT * FROM $wgdb.computers";
 	$result = mysql_query($query) or die("$query - " . mysql_error());
+	$pbtotal=mysql_num_rows($result);
+	$pbcount=0;
 	while($computer = mysql_fetch_assoc($result)) {
+		$pbcount++;
+		$pbpercent=intval($pbcount/$pbtotal * 100)."%";
 		//construct array
 		if($computer['sn']=="") continue;
 		//$mac = DSFormatMac($computer['ETHMAC']);
 		//DSComputers = DSGetComputers();
 		//if (! array_key_exists($mac,$DSComputers)) continue;	//computer already defined--does this matter?
+		$pbinfo=$computer['ComputerName'];
+		echo '<script language="javascript">
+    document.getElementById("progress").innerHTML="<div style=\"width:'.$pbpercent.';background-image:url(../assets/pbar-ani.gif);\">&nbsp;</div>";
+    document.getElementById("information").innerHTML="'.$pbinfo.'";
+    </script>';
 		DSAddComputer($computer['ComputerName'],$computer['sn']);
+		// This is for the buffer achieve the minimum size in order to flush data
+		echo str_repeat(' ',1024*64);
+		// Send output to browser immediately
+		flush();
 	}
+	// Tell user that the process is completed
+	echo '<script language="javascript">document.getElementById("information").innerHTML="Process completed"</script>';
 }
 
 ?>

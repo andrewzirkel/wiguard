@@ -18,7 +18,7 @@ as published by the Free Software Foundation; either version<br>
 This site is developed and maintained by Andrew Zirkel.<br>
 <br><hr><br>
 <?php
-echo "WiGuard Version: $version.";
+echo "WiGuard Version: $version";
 ?>
 </center>
 </body>
