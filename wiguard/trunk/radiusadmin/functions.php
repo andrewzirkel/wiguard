@@ -148,7 +148,7 @@ function querySN($sn) {
 
 function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 	include "./conf.php";
-	$updated = true;
+	$updated = false;
 	$name = trim($name);
 	$name = substr($name,0,15);
 	//validate macs
@@ -168,18 +168,21 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 	}
 	if (! $id) {
 		//find matching tuple by mac address pair unless null
-		if ($eth0 && $eth1) {
-		  $query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
-		  $result = mysql_query($query);
-		  $row = mysql_fetch_assoc($result);
-		  if ($row == "") {
-			  $updated = false;
-		  } else {
-			  $id = $row['id'];
-		  }
-		} else { $updated = false; }
+		if ($sn) {
+			$query = "SELECT id FROM $wgdb.computers WHERE sn LIKE '$sn'";
+			$result = mysql_query($query);
+			if (mysql_num_rows($result) > 1) return("$name - $sn Multiple Serial Numbers Matched.  ");
+			$row = mysql_fetch_assoc($result);
+			if ($row) $id = $row['id'];
+		} elseif ($eth0 && $eth1) {
+		  	$query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
+		  	$result = mysql_query($query);
+		  	$row = mysql_fetch_assoc($result);
+		  	if ($row) $id = $row['id'];
+		}
 	}
 	if ($id) {
+		$updated=true;
 		$query="SELECT * FROM $wgdb.computers WHERE id=$id";
 		$result = mysql_query($query) or die("$query - " . mysql_error());
 		$row = mysql_fetch_assoc($result);
@@ -189,34 +192,38 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',$id)";
 		mysql_query($query) or die("$query - " . mysql_error());
 		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
-		if (strcmp($row['ETHMAC'],$eth0) <> 0) {
+		if ($sn) {
 			chdir("DeployStudio");
 			include_once "DSFunctions.php";
-			DSDeleteComputer($row['ETHMAC']);
+			DSaddComputer($name,$sn);
 			chdir("../");
 		}
-	}
-	else {
+	} else {
 		//check for duplicate macs and names
-		$dup=queryComputer($name);
+		if ($name) $dup=queryComputer($name);
 		if($dup) return("$name ERROR: Duplicate name.  ");
-		$dup=queryName($eth0,false);
+		if ($eth0) $dup=queryName($eth0,false);
 		if($dup) return("$name ERROR: $dup has $eth0.  ");
-		$dup=queryName($eth1,false);
+		if ($eth1) $dup=queryName($eth1,false);
 		if($dup) return("$name ERROR: $dup has $eth1.  ");
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',null)";
 		mysql_query($query) or die("$query - " . mysql_error());
 	}
 	//add macs to radius
-	DeleteComputerName($eth0);
-	addMac($eth0);
-  DeleteComputerName($eth1);
-	addMac($eth1);
-	chdir("DeployStudio");
-	include_once "DSFunctions.php";
-	//DSaddComputer($name,$eth0);
-	DSaddComputer($name,$sn);
-	chdir("../");
+	if ($eth0) {
+		DeleteComputerName($eth0);
+		addMac($eth0);
+	}
+  	if ($eth1) {
+  		DeleteComputerName($eth1);
+		addMac($eth1);
+  	}
+	if ($sn) {
+		chdir("DeployStudio");
+		include_once "DSFunctions.php";
+		DSaddComputer($name,$sn);
+		chdir("../");
+	}
 	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 

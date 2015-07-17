@@ -16,7 +16,7 @@ function search($text,$target) {
 	$result = validateMac($text);
 	if ($result) { //search text is not mac address
 		//computers table
-		$query = "SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '%$text%' ORDER BY ComputerName";
+		$query = "SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '%$text%' OR sn LIKE '%$text%' ORDER BY ComputerName";
 		$result = mysql_query($query) or die("$query -" . mysql_error());
 		while ($row = mysql_fetch_assoc($result)) {
 			if ($target == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],TRUE);
