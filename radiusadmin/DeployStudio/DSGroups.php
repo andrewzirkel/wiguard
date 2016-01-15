@@ -3,6 +3,11 @@
 <head>
 <title>Manage Group Workflow Settings</title>
 <link rel="stylesheet" href=../style.css>
+<script>
+function reload() {
+	window.location = window.location.href;
+}
+</script>
 </head>
 <?php
 include '../conf.php';
@@ -74,7 +79,7 @@ while($row = mysql_fetch_assoc($result)) {
 //else if (!$edit) echo "<input type=button value=\"refresh\" onClick=\"this.form.sync.value=1\">";
 
 if (!$edit) echo "<input type=button value=\"refresh\" onClick=\"window.location.reload()\">";
-else echo"<input type=button value=\"cancel\" onClick=\"window.location.reload()\">"
+else echo"<input type=button value=\"cancel\" onClick=\"reload()\">"
 
 ?>
 </form>

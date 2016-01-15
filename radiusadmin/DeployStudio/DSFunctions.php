@@ -1,4 +1,7 @@
 <?php
+use CFPropertyList\CFPropertyList;
+use CFPropertyList\CFDictionary;
+use CFPropertyList\CFString;
 //global variables:
 $DSComputersCache=null;
 
@@ -265,20 +268,20 @@ EOM;
 		$pbcount=0;
 		foreach ($computers['computers'] as $key => $element) {
 			$pbcount++;
-			$pbpercent=intval($pbcount/$pbtotal * 100)."%";
-			$pbinfo="Processing " . $element['dstudio-hostname'];
-			echo '<script language="javascript">
+			if (strcmp($element['dstudio-group'],$row['DSGroup']) == 0) {
+				$pbpercent=intval($pbcount/$pbtotal * 100)."%";
+				$pbinfo="Processing " . $element['dstudio-hostname'];
+				echo '<script language="javascript">
     document.getElementById("progress").innerHTML="<div style=\"width:'.$pbpercent.';background-image:url(../assets/pbar-ani.gif);\">&nbsp;</div>";
     document.getElementById("information").innerHTML="'.$pbinfo.'";
     </script>';
-			if (strcmp($element['dstudio-group'],$row['DSGroup']) == 0) {
 				$url=DSFormatURL("computers/set/entry")."?id=".$key;
 				$element["dstudio-auto-started-workflow"] = "$DSWorkflow";
 				DSWriteData($url,DSCatPlist(DSArrayToPlist($element)));
+				echo str_repeat(' ',1024*64);
+				// Send output to browser immediately
+				flush();
 			}
-			echo str_repeat(' ',1024*64);
-			// Send output to browser immediately
-			flush();
 		}
 		// Tell user that the process is completed
 		echo '<script language="javascript">document.getElementById("information").innerHTML="Process completed"</script>';
