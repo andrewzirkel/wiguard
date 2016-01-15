@@ -38,7 +38,7 @@ if (isset($_POST['edit'])) {$edit = $_POST['edit'];}else{$edit=null;}
 if ($edit == 1) {
 	DSSetWorkflow($_POST['id'],$_POST['workflow']);
 	$edit=null;
-	echo '<script language="javascript">location.reload();</script>';
+	echo '<script language="javascript">window.location = window.location.href;</script>';
 }
 
 /*
