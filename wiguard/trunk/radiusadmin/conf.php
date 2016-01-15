@@ -1,5 +1,5 @@
 <?php
-$version="2.2";
+$version="2.3";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
@@ -7,6 +7,7 @@ $dbpass="wiguard";
 $debug=false;
 
 $groupDelim='-';
+$groupDefault='staff';
 
 $procs=array("apache","radius","mysql");
 

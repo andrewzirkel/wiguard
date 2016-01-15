@@ -1,4 +1,6 @@
 <?php
+//global variables:
+$DSComputersCache=null;
 
 //returns true if enabled, false if not
 function DSIntegration() {
@@ -54,6 +56,7 @@ function DSParseGroup($name) {
 	include '../conf.php';
 	$a = explode($groupDelim,$name);
 	if (sizeof($a) > 1) return(strtolower($a[0]));
+	elseif (! empty($groupDefault)) return $groupDefault;
 	else return(false);
 }
 //returns retrieved data
@@ -154,8 +157,13 @@ function DSCatPlist($plist) {
 
 //return array of all DS Computers
 function DSGetComputers() {
-	$url = DSFormatURL("computers/get/all");
-	return(DSGetData($url));
+	
+	global $DSComputersCache;
+	if(!isset($DSComputersCache)) {
+		$url = DSFormatURL("computers/get/all");
+		$DSComputersCache = DSGetData($url);
+	}
+	return($DSComputersCache);
 }
 
 //returns multi array of workflows
@@ -452,6 +460,7 @@ function DSAddComputer($name,$sn) {
 	//determine group
 	$computerGroup = DSParseGroup($name);
 	if ($computerGroup) {
+		
 		if(! DSAddGroup($computerGroup)){
 			//false if group not created, so must grab group data
 			$groupSettings = DSGetGroupSettings($computerGroup);
