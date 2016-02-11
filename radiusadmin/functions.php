@@ -46,11 +46,24 @@ function addMac($mac) {
 	return("$mac Added to radcheck.  ");
 }
 
+function addMacGP($mac,$gp) {
+	include "./conf.php";
+	mysql_query("INSERT INTO $radb.radreply VALUES(null,'$mac','filter-id',':=','$gp')") or die("$query - " . mysql_error());
+	return("Mac based Group Policy Updated for $mac.   ");
+}
+
 function deleteMac($mac) {
 	include "./conf.php";
 	@mysql_select_db($radb) or die("Unable to select database");
 	mysql_query("DELETE FROM $radb.radcheck WHERE UserName LIKE '$mac'") or die("$query - " . mysql_error());
 	return("$mac deleted from radcheck.  ");
+}
+
+function deleteMacGP($mac){
+	include "./conf.php";
+	@mysql_select_db($radb) or die("Unable to select database");
+	mysql_query("DELETE FROM $radb.radreply WHERE UserName LIKE '$mac'") or die("$query - " . mysql_error());
+	return("Mac based Group Policy Deleted for $mac.   ");
 }
 
 function queryComputerName($mac) {
@@ -146,9 +159,10 @@ function querySN($sn) {
 	chdir("../");
 }
 
-function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
+function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 	include "./conf.php";
 	$updated = false;
+	if(empty($name)) return ("Name must be supplied.   ");
 	$name = trim($name);
 	$name = substr($name,0,15);
 	//validate macs
@@ -189,13 +203,15 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 		//check if macs have changed, if so then delete from radcheck
 		if(strcmp($row['ETHMAC'],$eth0) <> 0) deleteMac($row['ETHMAC']);
 		if(strcmp($row['WiMAC'],$eth1) <> 0) deleteMac($row['WiMAC']);
-		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',$id)";
+		if(strcmp($row['filter-id'],$gp) <> 0) deleteMacGP($eth0);
+		if(strcmp($row['filter-id'],$gp) <> 0) deleteMacGP($eth1);
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',$id,'$gp')";
 		mysql_query($query) or die("$query - " . mysql_error());
-		//Must delete from DS if eth0 is changed.  Only possible if already in computers.
-		if ($sn) {
+		//Must delete from DS if sn is changed.  Only possible if already in computers.
+		if (strcmp($row['sn'],$sn) <> 0) {
 			chdir("DeployStudio");
 			include_once "DSFunctions.php";
-			DSaddComputer($name,$sn);
+			DSDeleteComputer($name,$sn);
 			chdir("../");
 		}
 	} else {
@@ -206,17 +222,19 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 		if($dup) return("$name ERROR: $dup has $eth0.  ");
 		if ($eth1) $dup=queryName($eth1,false);
 		if($dup) return("$name ERROR: $dup has $eth1.  ");
-		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',null)";
+		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',null,'$gp')";
 		mysql_query($query) or die("$query - " . mysql_error());
 	}
 	//add macs to radius
 	if ($eth0) {
 		DeleteComputerName($eth0);
 		addMac($eth0);
+		if ($gp) addMacGP($eth0, $gp);
 	}
   	if ($eth1) {
   		DeleteComputerName($eth1);
 		addMac($eth1);
+		if ($gp) addMacGP($eth1, $gp);
   	}
 	if ($sn) {
 		chdir("DeployStudio");
@@ -227,7 +245,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$id=null) {
 	if ($updated) return("$name Updated. "); else return("$name Added.  ");
 }
 
-function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$id=NULL) {
+function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 	include "./conf.php";
 	@mysql_select_db($wgdb) or die("$query - " . mysql_error());
 	if (!$id) {
@@ -254,7 +272,9 @@ function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$id=NULL) {
 	if (queryComputerName($eth1) != "") deleteComuterName($eth1);
 	//remove from radcheck
 	deleteMac($eth0);
+	deleteMacGP($eth0);
 	deleteMac($eth1);
+	deleteMacGP($eth1);
 	//remove from DeployStudio
 	chdir("DeployStudio");
 	include_once "DSFunctions.php";

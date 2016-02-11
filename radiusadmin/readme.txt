@@ -1,4 +1,10 @@
 Fixes:
+2.4
+- fix some php errors
+- add group (filter-id) attribute to radreply table
+- fix deploystudio groups
+- require computer name
+2.3
 2.2
 - check for existing serial number.
 - add search for serial.

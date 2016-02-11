@@ -13,7 +13,8 @@
 <?php
 include "./conf.php";
 include "./functions.php";
-$create=$_POST['create'];
+$create=isset($_POST['create']) && ($_POST['create']);
+$macList="";
 if ($create == 1) {
 	echo "<br>Modifying Database...<br>\n";
 	$macList=$_POST['macList'];
@@ -42,6 +43,10 @@ if ($create == 1) {
 				$pbinfo=deleteComputer(trim($elementArray[0]),trim($elementArray[1]),trim($elementArray[2]),trim($elementArray[3]));
 			 	printf("%s<br>\n",$pbinfo);
 			 	break;
+			case 5:
+	 	 		$pbinfo=deleteComputer(trim($elementArray[0]),trim($elementArray[1]),trim($elementArray[2]),trim($elementArray[3]),trim($elementArray[4]));
+		 		printf("%s<br>\n",$pbinfo);
+		 		break;	
    			default:
    				$pbinfo="Invalid Row: $line";
 				printf("%s<br>\n",$pbinfo);
@@ -69,7 +74,7 @@ echo <<<EOM
 <input type=hidden name=create value="0">
 <br>
 Computer Record: 
-<br><textarea name="macList" rows="12" cols="50" style="font-family:Courier">$macList</textarea><br>
+<br><textarea name="macList" rows="12" cols="70" style="font-family:Courier">$macList</textarea><br>
 <input type="Submit" class="button" value="Delete These MACs" OnClick="this.form.create.value=1">
 </form>
 EOM;
