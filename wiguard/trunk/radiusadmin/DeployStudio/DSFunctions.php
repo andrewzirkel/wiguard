@@ -2,6 +2,7 @@
 use CFPropertyList\CFPropertyList;
 use CFPropertyList\CFDictionary;
 use CFPropertyList\CFString;
+use CFPropertyList\CFTypeDetector;
 //global variables:
 $DSComputersCache=null;
 
@@ -81,6 +82,8 @@ function DSGetURL($url) {
 //takes url and data (plain text plist)
 //returns error code
 function DSWriteData($url,$data=null) {
+	include '../conf.php';
+	if($debug) echo "<pre>In DSWriteData\n" . $url. PHP_EOL . $data . "\n<pre>";
 	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml'));
@@ -97,6 +100,7 @@ function DSWriteData($url,$data=null) {
 
 //returns array from plist at $url
 function DSGetData($url) {
+	include '../conf.php';
 	//CFPropertyList works with Apple plists
 	require_once('../classes/CFPropertyList/CFPropertyList.php');
 	$result = DSGetURL($url);
@@ -109,6 +113,8 @@ function DSGetData($url) {
 	$plist = new CFPropertyList();
 	$plist->parse($result);
 	$a = $plist->toArray();
+	
+	if($debug) echo "<pre>In DSGetData\n" . $url. PHP_EOL . print_r($a) . "\n<pre>";
 	return $a;
 }
 
@@ -133,13 +139,35 @@ function DSArrayToTable($a,$sub=false) {
 
 //returns plist object
 //takes associative [multi] array, plist opbject
+function DSConstructPlist($a,&$plist) {
+	require_once('../classes/CFPropertyList/CFPropertyList.php');
+	$td = new CFTypeDetector();
+	$guessedStructure = $td->toCFType( $a );
+	$plist->add( $guessedStructure );
+}
+/*
 function DSConstructPlist($a,&$plist,$dictKey=null,&$dictP=null) {
 	require_once('../classes/CFPropertyList/CFPropertyList.php');
 	$dict = new CFDictionary();
 	foreach ($a as $key => $element) {
-	  if (is_array($element)) DSConstructPlist($element,$plist,$key,$dict); else $dict->add($key,new CFString($element));
+	  if (is_array($element)) DSConstructPlist($element,$plist,$key,$dict);
+	  else $dict->add($key,new CFString($element));
 	}
-	if ($dictKey) $dictP->add($dictKey,$dict); else $plist->add($dict);
+	if ($dictKey) $dictP->add($dictKey,$dict);
+	else $plist->add($dict);
+}
+*/
+
+//set value to key in plist object
+//takes plist object, key, value
+//returns 
+function DSSetValue($plist,$mykey, $myvalue) {
+	foreach( $plist->getValue(true) as $key => $value )
+	{
+		if( $key == $mykey ) $value->setValue( $myvalue );
+		if( $value instanceof \Iterator ) DSSetValue($plist, $mykey, $myvalue);
+	}
+	
 }
 
 //returns plist object
@@ -456,26 +484,27 @@ function DSAddComputer($name,$mac) {
 //deploy studio now keys off of serial number
 function DSAddComputer($name,$sn) {
 	include '../conf.php';
-	if($debug) echo "In DSAddComputers";
+	if($debug) echo "In DSAddComputers\n";
 	if (! (DSIntegration())) return;
 	//construct plist
 	$plist = array("dstudio-host-primary-key" => "dstudio-host-serial-number","dstudio-hostname" => "$name","dstudio-host-serial-number" => "$sn");
+	//get existing data for host
+	$url=DSFormatURL("computers/get/entry")."?id=".$sn;
+	$existingData=DSGetData($url);
+	if(! empty($existingData)) $plist = array_merge($existingData[$sn],$plist);
 	//determine group
 	$computerGroup = DSParseGroup($name);
-	if ($computerGroup) {
-		
+	if ($computerGroup) {	
 		if(! DSAddGroup($computerGroup)){
 			//false if group not created, so must grab group data
 			$groupSettings = DSGetGroupSettings($computerGroup);
 			if ($groupSettings) $plist = array_merge($plist,$groupSettings);
-			if($debug) echo "$computerGroup exists but no data found";
+			else echo "Computer Group: $computerGroup exists but no data found\n";
 		}
 	} else return; 		//not adding manchines without group data!
 	//write plist to DS Database
 	if ("$computerGroup") $plist["dstudio-group"] = $computerGroup;
 	$url = DSFormatURL("computers/set/entry?id=$sn");
-	if($debug) echo $url;
-	if($debug) echo "<pre>" . DSCatPlist(DSArrayToPlist($plist)) . "<pre>";
 	DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
 }
 

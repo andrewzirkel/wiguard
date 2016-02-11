@@ -15,6 +15,7 @@
 include "./conf.php";
 include "./functions.php";
 $create=isset($_POST['create']) && $_POST['create'];
+$macList="";
 if ($create == 1) {
 	echo "<br>Modifying Database...<br>\n";
 	$macList=$_POST['macList'];
@@ -75,8 +76,8 @@ echo <<<EOM
 <input type=hidden name=create value="0">
 <br>
 Add or update Mac addresses and computer names.<br>
-Format: 0011aabbccdd,0011aabbccdd,ComputerName 
-<br><textarea name="macList" rows="12" cols="50" style="font-family:Courier">$macList</textarea><br>
+Format: 0011aabbccdd,0011aabbccdd,ComputerName,SerialNumber,GroupPolicy
+<br><textarea name="macList" rows="12" cols="70" style="font-family:Courier">$macList</textarea><br>
 <input type="Submit" class="button" value="Add These MACs" OnClick="this.form.create.value=1">
 </form>
 EOM;
