@@ -6,7 +6,7 @@ use CFPropertyList\CFPropertyList;
 use CFPropertyList\CFDictionary;
 use CFPropertyList\CFString;
 
-$data=file_get_contents('/Users/zirkelad/BigProjects/WiGuard/CFPropertyListTesting/C17HT9YWDTY3-orig.plist');
+$data=file_get_contents('/tmp/groups');
 
 function setValue($plist,$searchKey,$newValue){
 	foreach( $plist->getValue(true) as $key => $value )
@@ -40,4 +40,4 @@ $plist = new CFPropertyList();
 $plist->parse($data);
 //getValue($plist,"dstudio-clientmanagement-computer-groups");
 $a = $plist->toArray();
-echo "<pre>" . "in DSGetData" . print_r($a) . "</pre>";
+printf("<pre> in DSGetData %s </pre>",print_r($a,TRUE));

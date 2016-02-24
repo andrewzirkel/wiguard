@@ -1,5 +1,5 @@
 <?php
-$version="2.4b";
+$version="2.4d";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
