@@ -46,7 +46,7 @@ function DSFormatURL($path) {
 
 function DSNormalizeURL($url) {
 	$url = str_replace(" ", "%20", $url);
-	return($url);
+	return $url;
 }
 
 //add ':' back into mac
@@ -59,13 +59,20 @@ function DSFormatMac($mac) {
 function DSParseGroup($name) {
 	include '../conf.php';
 	$a = explode($groupDelim,$name);
-	if (sizeof($a) > 1) return(strtolower($a[0]));
-	elseif (! empty($groupDefault)) return $groupDefault;
-	else return(false);
+	$groupname="";
+	if (sizeof($a) > 1) $groupname = strtolower($a[0]);
+	elseif (! empty($groupDefault)) return $groupname = $groupDefault;
+	
+	if (empty($groupname)) return FALSE;
+	else {
+		settype($groupname, 'string');
+		return $groupname;
+	}
 }
 //returns retrieved data
 //takes url
 function DSGetURL($url) {
+	include '../conf.php';
 	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -74,6 +81,9 @@ function DSGetURL($url) {
 	$creds = DSGetAdminUser() . ":" . DSGetAdminPass();
 	curl_setopt($ch,CURLOPT_USERPWD,"$creds");
 	$curlResult = curl_exec($ch);
+	if($debug) echo "<pre>In DSGetURL\n" . $url. PHP_EOL . $curlResult . "\n</pre>";
+	$r=curl_getinfo($ch);
+	if ($r['http_code']!=200) exit("DS returned error code: " . $r['http_code']);
 	curl_close($ch);
 	return $curlResult; 
 }
@@ -83,7 +93,6 @@ function DSGetURL($url) {
 //returns error code
 function DSWriteData($url,$data=null) {
 	include '../conf.php';
-	if($debug) echo "<pre>In DSWriteData\n" . $url. PHP_EOL . $data . "\n<pre>";
 	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml'));
@@ -94,6 +103,9 @@ function DSWriteData($url,$data=null) {
 	curl_setopt($ch, CURLOPT_POST, true);
 	curl_setopt($ch,CURLOPT_POSTFIELDS,"$data");
 	$curlResult = curl_exec($ch);
+	if($debug) echo "<pre>In DSWriteData\n" . $url. PHP_EOL . $data . PHP_EOL . $curlResult . "\n</pre>";
+	$r=curl_getinfo($ch);
+	if ($r['http_code']!=201) exit("DS returned error code: " . $r['http_code']);
 	curl_close($ch);
 	return $curlResult; 
 }
@@ -106,15 +118,15 @@ function DSGetData($url) {
 	$result = DSGetURL($url);
 
 	if (!$result) {
-		echo "Connection to Deploy Studio Server at $url Failed";
-		return(1);
+		//echo "Connection to Deploy Studio Server at $url Failed";
+		return(null);
 	}
 
 	$plist = new CFPropertyList();
 	$plist->parse($result);
 	$a = $plist->toArray();
 	
-	if($debug) echo "<pre>In DSGetData\n" . $url. PHP_EOL . print_r($a) . "\n<pre>";
+	if($debug) printf("<pre>In DSGetData\n%s\n%s\n</pre>",$url,print_r($a,TRUE));
 	return $a;
 }
 
@@ -187,14 +199,28 @@ function DSCatPlist($plist) {
 }
 
 //return array of all DS Computers
-function DSGetComputers() {
-	
+function DSGetComputers($refresh=FALSE) {
 	global $DSComputersCache;
-	if(!isset($DSComputersCache)) {
+	if($refresh || (!isset($DSComputersCache))) {
 		$url = DSFormatURL("computers/get/all");
 		$DSComputersCache = DSGetData($url);
 	}
 	return($DSComputersCache);
+}
+
+//return array of all DS Groups
+function DSGetGroups($refresh=FALSE) {
+	global $DSGroupsCache;
+	if($refresh || (!isset($DSGroupsCache))) {
+		$url=DSFormatURL("computers/groups/get/all");
+		$DSGroupsCache = DSGetData($url);
+	}
+	return($DSGroupsCache);
+}
+
+function DSGetComputerEntry($sn){
+	$computers=DSGetComputers();
+	if (isset($computers['computers'][$sn])) return $computers['computers'][$sn];
 }
 
 //returns multi array of workflows
@@ -341,7 +367,6 @@ function DSQueryGroup($group) {
 function DSAddGroup($group) {
 	include '../conf.php';
 	$created=false;
-	$getURL=DSFormatURL("computers/groups/get/all");
 	$newURL=DSFormatURL("computers/groups/new/entry");
 	$renURL=DSFormatURL("computers/groups/ren/entry");
 	$group = trim($group);
@@ -352,13 +377,19 @@ function DSAddGroup($group) {
 	}
 
 	//The DS Admin app creates a new group and then renames it
-	$currentGroups=DSGetData($getURL);
+	$currentGroups=DSGetGroups(FALSE);
 	if (is_array($currentGroups['groups'])) if (in_array($group,$currentGroups['groups'])) return($created);
 	DSWriteData($newURL);
-	$currentGroups2=DSGetData($getURL);
+	$currentGroups2=DSGetGroups(TRUE);
+	//get new group name that was created 
 	$newGroup=array_merge(array_diff($currentGroups2['groups'],$currentGroups['groups']));  //array_diff only unsets
+	if ($newGroup==NULL) exit("DSError, could not create group");
 	$url=$renURL."?id=".$newGroup[0]."&new_id=".$group;
 	DSWriteData($url);
+	//refresh Groups cache
+	DSGetGroups(TRUE);
+	//refresh computers to pick up new group settings
+	DSGetComputers(TRUE);
 	return($created);
 }
 
@@ -441,17 +472,12 @@ function array_remove_empty($arr){
 
 function DSGetGroupSettings($DSGroup) {
 	$computers=DSGetComputers();
-	if (! is_array($computers['groups'])) return(false);
-	if (! is_array($computers['groups']["$DSGroup"])) return(false);
+	if (! is_array($computers['groups'])) return(FALSE);
+	if (! is_array($computers['groups']["$DSGroup"])) return(FALSE);
 	$data=array_remove_empty($computers['groups']["$DSGroup"]);
 	foreach ($data as $key => $element) {
 		if (substr_count($key,"dstudio-group") > 0) unset($data[$key]);
 	}
-	/*
-	echo "<pre>";
-	print_r($data);
-	echo "</pre>";
-	*/
 	return($data);
 }
 
@@ -487,25 +513,31 @@ function DSAddComputer($name,$sn) {
 	if($debug) echo "In DSAddComputers\n";
 	if (! (DSIntegration())) return;
 	//construct plist
-	$plist = array("dstudio-host-primary-key" => "dstudio-host-serial-number","dstudio-hostname" => "$name","dstudio-host-serial-number" => "$sn");
-	//get existing data for host
-	$url=DSFormatURL("computers/get/entry")."?id=".$sn;
-	$existingData=DSGetData($url);
-	if(! empty($existingData)) $plist = array_merge($existingData[$sn],$plist);
+	$plist = array(
+			"dstudio-host-primary-key" => "dstudio-host-serial-number",
+			"dstudio-hostname" => "$name",
+			"dstudio-host-serial-number" => "$sn",
+	);
 	//determine group
 	$computerGroup = DSParseGroup($name);
 	if ($computerGroup) {	
 		if(! DSAddGroup($computerGroup)){
 			//false if group not created, so must grab group data
 			$groupSettings = DSGetGroupSettings($computerGroup);
-			if ($groupSettings) $plist = array_merge($plist,$groupSettings);
+			if ($groupSettings!==FALSE) $plist = array_merge($plist,$groupSettings);
 			else echo "Computer Group: $computerGroup exists but no data found\n";
 		}
-	} else return; 		//not adding manchines without group data!
+	} else return; 		//not adding machines without group data!
 	//write plist to DS Database
 	if ("$computerGroup") $plist["dstudio-group"] = $computerGroup;
-	$url = DSFormatURL("computers/set/entry?id=$sn");
-	DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
+	//get existing data for host
+	$existingData=DSGetComputerEntry($sn);
+	if(! empty($existingData)) $plist = array_merge($existingData,$plist);
+	//only write data if we have something changed.
+	if((empty($existingData)) || !is_array(array_diff($plist,$existingData))) {
+		$url = DSFormatURL("computers/set/entry?id=$sn");
+		DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
+	}
 }
 
 /*
@@ -557,6 +589,8 @@ EOM;
 	$result = mysql_query($query) or die("$query - " . mysql_error());
 	$pbtotal=mysql_num_rows($result);
 	$pbcount=0;
+	//Need to do this to set up initial DS Database, otherwise can't craete groups.
+	DSGetComputers();
 	while($computer = mysql_fetch_assoc($result)) {
 		$pbcount++;
 		$pbpercent=intval($pbcount/$pbtotal * 100)."%";

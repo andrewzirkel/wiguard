@@ -39,7 +39,7 @@ class CFTypeDetector {
    * flag stating if "123.23" should be converted to float (true) or preserved as string (false)
    * @var boolean
    */
-  protected $castNumericStrings = true;
+  protected $castNumericStrings = FALSE;
 
 
   /**
