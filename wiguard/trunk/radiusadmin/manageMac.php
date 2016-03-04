@@ -5,7 +5,7 @@ include "./functions.php";
 
 function printRow($id,$ETHMAC,$WiMAC,$ComputerName,$sn,$gp,$editFlag) {
 	if ($editFlag) {
-		printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\" value=\"%s\"></td><td><input type=\"text\" name=\"WiMAC\" value=\"%s\"</td><td><input type=\"text\" name=\"ComputerName\" value=\"%s\"</td><td><input type=\"text\" name=\"sn\" value=\"%s\"</td><td><input type=\"text\" name=\"gp\" value=\"%s\"</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"><input type=hidden name=id value=%d></td></tr>\n",$ETHMAC,$WiMAC,$ComputerName,$sn,$gp,$id);
+		printf("<tr bgcolor=red><td><input type=\"text\" name=\"ETHMAC\" value=\"%s\"></td><td><input type=\"text\" name=\"WiMAC\" value=\"%s\"></td><td><input type=\"text\" name=\"ComputerName\" value=\"%s\"></td><td><input type=\"text\" name=\"sn\" value=\"%s\"></td><td><input type=\"text\" name=\"gp\" value=\"%s\"></td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"><input type=hidden name=id value=%d></td></tr>\n",$ETHMAC,$WiMAC,$ComputerName,$sn,$gp,$id);
 	} else {
 		printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.create.value='%d'\"></td></tr>\n",$ETHMAC,$WiMAC,$ComputerName,$sn,$gp,$id);
 	}

@@ -534,7 +534,7 @@ function DSAddComputer($name,$sn) {
 	$existingData=DSGetComputerEntry($sn);
 	if(! empty($existingData)) $plist = array_merge($existingData,$plist);
 	//only write data if we have something changed.
-	if((empty($existingData)) || !is_array(array_diff($plist,$existingData))) {
+	if((empty($existingData)) || is_array(array_diff($plist,$existingData))) {
 		$url = DSFormatURL("computers/set/entry?id=$sn");
 		DSWriteData($url,DSCatPlist(DSArrayToPlist($plist)));
 	}
