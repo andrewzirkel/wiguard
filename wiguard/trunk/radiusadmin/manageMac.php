@@ -44,7 +44,8 @@ if (isset($_POST['remove']) && $_POST['remove']) {
 	$create = "";
 }
 if (isset($create) && $create == "1") {
-	printf("%s<br>",addComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName'],$_POST['sn'],$_POST['gp'],$_POST['id']));
+	if (isset($_POST['id'])) printf("%s<br>",addComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName'],$_POST['sn'],$_POST['gp'],$_POST['id']));
+	else printf("%s<br>",addComputer($_POST['ETHMAC'],$_POST['WiMAC'],$_POST['ComputerName'],$_POST['sn'],$_POST['gp']));
 	$create = "";
 }
 
@@ -72,7 +73,7 @@ else printf("<input type=hidden name=create value=0>");
 if ($searchText) echo "<input type=text name=searchText value=\"$searchText\">";
 else echo "<input type=text name=searchText>";
 echo "<input type=\"Submit\" class=\"button\" value=\"Search\">";
-if (!$create && !isset($_POST['add'])) printf("<input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\">");
+if (!$create && !(isset($_POST['add']) && $_POST['add'])) printf("<input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\">");
 ?>
 <br><br>
 <table><tr><td><a href=list.php>Simple Listing of Computers</a></td>
