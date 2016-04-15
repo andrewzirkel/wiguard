@@ -481,6 +481,14 @@ function DSGetGroupSettings($DSGroup) {
 	return($data);
 }
 
+//removes existing group data
+//returns array of data without group data
+function DSRemoveExistingGroupData($existingData) {
+	if (! array_key_exists('dstudio-group', $existingData)) return $existingData;
+	$groupSettings = DSGetGroupSettings($existingData['dstudio-group']);
+	return array_diff($existingData, $groupSettings);
+}
+
 /*
 function DSAddComputer($name,$mac) {
 	include '../conf.php';
@@ -532,7 +540,11 @@ function DSAddComputer($name,$sn) {
 	if ("$computerGroup") $plist["dstudio-group"] = $computerGroup;
 	//get existing data for host
 	$existingData=DSGetComputerEntry($sn);
-	if(! empty($existingData)) $plist = array_merge($existingData,$plist);
+	if(! empty($existingData)) {
+		//remove existing group data from host
+		$existingData = DSRemoveExistingGroupData($existingData);
+		$plist = array_merge($existingData,$plist);
+	}
 	//only write data if we have something changed.
 	if((empty($existingData)) || is_array(array_diff($plist,$existingData))) {
 		$url = DSFormatURL("computers/set/entry?id=$sn");
