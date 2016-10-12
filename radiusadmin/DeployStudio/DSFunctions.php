@@ -255,7 +255,11 @@ function DSSyncWorkflows() {
 	}
 }
 
-//
+//Set Group attributes
+function DSSetGroupAttributes($DSGroup){
+	
+}
+
 function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 	include '../conf.php';
 	if(strcmp($DSWorkflow,"none")==0) $DSWorkflow = null;
@@ -277,44 +281,11 @@ EOM;
 		$computers=DSGetComputers();
 		if (! is_array($computers['groups'])) return;
 		if (! is_array($computers['groups'][$row['DSGroup']])) return;
-		/*
-		$data=array("CN" => "",
-		"dstudio-auto-started-workflow" => "$DSWorkflow",
-		"dstudio-auto-reset-workflow" => "NO",
-		"dstudio-auto-disable" => "NO",
-		"dstudio-bootcamp-windows-computer-name" => "",
-		"dstudio-bootcamp-windows-product-key" => "",
-		"dstudio-group-hosname-index-first-value" => 1,
-		"dstudio-group-hosname-index-length" => 1,
-		"dstudio-group-name" => $row['DSGroup'],
-		"dstudio-host-delete-other-locations" => "NO",
-		"dstudio-host-interfaces" => array ( "en0" => array (
-		"dstudio-dns-ips" => "",
-		"dstudio-host-airport" => "NO",
-		"dstudio-host-airport-name"  => "",
-		"dstudio-host-airport-password" => "",
-		"dstudio-host-ftp-proxy" => "NO",
-		"dstudio-host-ftp-proxy-port"  => "",
-		"dstudio-host-ftp-proxy-server"  => "",
-		"dstudio-host-http-proxy" => "NO",
-		"dstudio-host-http-proxy-port" => "",
-		"dstudio-host-http-proxy-server" => "",
-		"dstudio-host-https-proxy" => "NO",
-		"dstudio-host-https-proxy-port" => "",
-		"dstudio-host-https-proxy-server" => "",
-		"dstudio-host-interfaces" => "en0",
-		"dstudio-host-ip" => "",
-		"dstudio-router-ip" => "",
-		"dstudio-search-domains" => "",
-		"dstudio-subnet-mask" => "")),
-		"dstudio-host-location" => "",
-		"dstudio-host-new-network-location" => "NO",
-		"dstudio-hostname" => "",
-		"dstudio-serial-number" => "",
-		"dstudio-xsan-license" => "");
-		*/
 		$data=$computers['groups'][$row['DSGroup']];
-		$data['dstudio-auto-started-workflow']="$DSWorkflow";
+		//set workflow for group
+		if($DSWorkflow) $data['dstudio-auto-started-workflow']="$DSWorkflow";
+		//unset workflow if null
+		elseif(array_key_exists('dstudio-auto-started-workflow',$data)) unset($data['dstudio-auto-started-workflow']);
 		//echo "<pre>" . DSCatPlist(DSArrayToPlist($data)) . "</pre>";
 		DSWriteData($url,DSCatPlist(DSArrayToPlist($data)));
 		//set computer data (...because this is something the client would handle...)
@@ -330,7 +301,10 @@ EOM;
     document.getElementById("information").innerHTML="'.$pbinfo.'";
     </script>';
 				$url=DSFormatURL("computers/set/entry")."?id=".$key;
+				//set workflow
 				$element["dstudio-auto-started-workflow"] = "$DSWorkflow";
+				//unset if no workflow
+				if(!$DSWorkflow) unset($element["dstudio-auto-started-workflow"]);
 				DSWriteData($url,DSCatPlist(DSArrayToPlist($element)));
 				echo str_repeat(' ',1024*64);
 				// Send output to browser immediately
