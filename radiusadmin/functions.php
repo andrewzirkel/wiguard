@@ -268,8 +268,8 @@ function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 	if (mysql_affected_rows() == 1) echo "$ComputerName deleted.  ";
 	else return("ERROR: $ComputerName in Computers db");
 	//remove from legacy database for completeness
-	if (queryComputerName($eth0) != "") deleteComuterName($eth0);
-	if (queryComputerName($eth1) != "") deleteComuterName($eth1);
+	if (queryComputerName($eth0) != "") deleteComputerName($eth0);
+	if (queryComputerName($eth1) != "") deleteComputerName($eth1);
 	//remove from radcheck
 	deleteMac($eth0);
 	deleteMacGP($eth0);
