@@ -255,13 +255,20 @@ function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 			$row = mysql_fetch_assoc($result);
 			$id = $row['id'];
 			if(!$id) return("$ComputerName with sn $sn doesn't exit");
-		} else {
+		} elseif($eth0){
 			$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0'";
 			$result = mysql_query($query) or die("$query - " . mysql_error());
 			$row = mysql_fetch_assoc($result);
 			$id = $row['id'];
 			if(!$id) return("$ComputerName doesn't exit");
 		}
+		elseif($eth1) {
+			$query = "SELECT * FROM $wgdb.computers WHERE WiMAC LIKE '$eth1'";
+			$result = mysql_query($query) or die("$query - " . mysql_error());
+			$row = mysql_fetch_assoc($result);
+			$id = $row['id'];
+			if(!$id) return("$ComputerName doesn't exit");
+		} else return("No valid selection criteria for deleteComputer()");
 	}
 	$query = "DELETE FROM $wgdb.computers WHERE id=$id";
 	mysql_query($query) or die("$query - " . mysql_error());
