@@ -30,7 +30,7 @@ function search($text,$target) {
 		$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC Like '$text' OR WiMAC like '$text' ORDER BY ComputerName";
 		$result = mysql_query($query) or die(mysql_error());
 		while ($row = mysql_fetch_assoc($result)) {
-			if ($id == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],TRUE);
+			if ($target == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],TRUE);
 			else printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],FALSE);
 			//printf("<tr><td>%s</td><td></td><td>%s</td></tr>",$row['MACAddress'],$row['ComputerName']);
 		}
