@@ -22,7 +22,7 @@ if (isset($_POST['update']) && $_POST['update']=='1'){
 	$v3=$_POST['DSAdminPassword'];
 	if (isset($_POST['DSIntegrate']) && $_POST['DSIntegrate']) $v4=1; else $v4 = 0;
 	$query = "REPLACE INTO $wgdb.DSConfig SET ID='1',DSServerURL='$v1',DSAdminUser='$v2',DSAdminPassword='$v3',DSIntegrate='$v4'";
-  mysql_query($query) or die(mysql_error());
+  mysqli_query($query) or die(mysqli_error());
   if (isset($_POST['DSIntegrate']) && $_POST['DSIntegrate']) {
   	echo "Synchronizing to DeployStudio...";
   	DSSync();
@@ -30,7 +30,7 @@ if (isset($_POST['update']) && $_POST['update']=='1'){
 }
 
 $query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-$result = mysql_query($query) or die(mysql_error());
+$result = mysqli_query($query) or die(mysqli_error());
 ?>
 
 <form method="post">
@@ -40,7 +40,7 @@ $result = mysql_query($query) or die(mysql_error());
 <table border=1 align="center">
 <tr><th>URL</th><th>Admin User Name</th><th>Admin Password</th><th>Enable Integration</th><th>action</th></tr>
 <?php
-$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
 if ($recordArray['DSIntegrate']) {
 	if ($modify) $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 checked>";
 	else $integrateCheckbox = "<input type=checkbox name=\"DSIntegrate\" value=1 disabled checked>";

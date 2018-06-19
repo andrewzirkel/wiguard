@@ -1,5 +1,5 @@
 <?php
-$version="2.5.2";
+$version="2.5.3";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
@@ -11,10 +11,10 @@ $groupDefault='staff';
 
 $procs=array("apache","radius","mysql");
 
-mysql_connect("localhost",$dbuser,$dbpass);
-/*$radbp=mysql_connect(localhost,$user,$password,true);
-mysql_select_db($radb,$radbp) or die("Unable to select database");
-$wgdbp=mysql_connect(localhost,$user,$password,true);
-mysql_select_db($wgdb,$wgdbp) or die("Unable to select database");
+mysqli_connect("localhost",$dbuser,$dbpass);
+/*$radbp=mysqli_connect(localhost,$user,$password,true);
+mysqli_select_db($radb,$radbp) or die("Unable to select database");
+$wgdbp=mysqli_connect(localhost,$user,$password,true);
+mysqli_select_db($wgdb,$wgdbp) or die("Unable to select database");
 */
 ?>

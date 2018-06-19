@@ -21,8 +21,8 @@ function generateSelect($level) {
 <?php
 include "./authConf.php";
 include "./authFunctions.php";
-#mysql_connect(localhost,$user,$password);
-#@mysql_select_db($wgdb) or die("Unable to select database");
+#mysqli_connect(localhost,$user,$password);
+#@mysqli_select_db($wgdb) or die("Unable to select database");
 
 $ruser=$_POST['ruser'];
 if ($_POST['create']=='1'){
@@ -34,10 +34,10 @@ if ($_POST['remove']=='1'){
 	$ruser="";
 }
 
-#@mysql_select_db($wgdb) or die("Unable to select database");
+#@mysqli_select_db($wgdb) or die("Unable to select database");
 $query = "SELECT * FROM $wgdb.$authTable";
-$result = mysql_query($query) or die(mysql_error());
-//$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+$result = mysqli_query($query) or die(mysqli_error());
+//$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
 
 echo <<<EOM
 <form method="post">
@@ -53,7 +53,7 @@ Manage Users.<br>
 <table border=1>
 <tr><th>login</th><th>password</th><th>level</th><th>action</th></tr>
 EOM;
-while($recordArray = mysql_fetch_array($result,MYSQL_ASSOC)) {
+while($recordArray = mysqli_fetch_array($result,mysqli_ASSOC)) {
 	if ($recordArray['user']==$ruser) {
 		printf("<tr bgcolor=red><td>%s</td><td><input type=\"password\" name=\"rpassword\"></td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"></td></tr>\n",$recordArray['user'],generateSelect($recordArray['level']));
 	} elseif (!in_array($recordArray['user'],$specialUser)) printf("<tr><td>%s</td><td>****</td><td>%s</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.ruser.value='%s'\"></td></tr>\n",$recordArray['user'],$recordArray['level'],$recordArray['user']);

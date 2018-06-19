@@ -9,8 +9,8 @@
 <?php
 include "./conf.php";
 include "./nasFunctions.php";
-#mysql_connect(localhost,$user,$password);
-#@mysql_select_db($wgdb) or die("Unable to select database");
+#mysqli_connect(localhost,$user,$password);
+#@mysqli_select_db($wgdb) or die("Unable to select database");
 
 $rid = $_POST['rid'];
 //$rclient=$_POST['rclient'];
@@ -24,10 +24,10 @@ if ($_POST['remove']=='1'){
 	$rid="";
 }
 
-#@mysql_select_db($wgdb) or die("Unable to select database");
+#@mysqli_select_db($wgdb) or die("Unable to select database");
 $query = "SELECT * FROM $radb.nas";
-$result = mysql_query($query) or die(mysql_error());
-//$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+$result = mysqli_query($query) or die(mysqli_error());
+//$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
 
 echo <<<EOM
 <form method="post">
@@ -45,7 +45,7 @@ Restart radiusd after any change.<br>
 <table border=1>
 <tr><th>IP</th><th>Name</th><th>Secret</th><th>action</th></tr>
 EOM;
-while($recordArray = mysql_fetch_array($result,MYSQL_ASSOC)) {
+while($recordArray = mysqli_fetch_array($result,mysqli_ASSOC)) {
 	if ($recordArray['id']==$rid) {
 		printf("<tr bgcolor=red><td><input type=\"text\" name=\"rclient\" value=\"%s\"></td><td><input type=\"text\" name=\"rname\" value=\"%s\"></td><td><input type=\"password\" name=\"rpassword\"></td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"></td></tr>\n",$recordArray['nasname'],$recordArray['shortname']);
 	} else printf("<tr><td>%s</td><td>%s</td><td>****</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.rid.value='%s'\"></td></tr>\n",$recordArray['nasname'],$recordArray['shortname'],$recordArray['id']);

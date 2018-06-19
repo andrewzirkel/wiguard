@@ -48,6 +48,10 @@ if ($create == 1) {
 				$pbinfo=addComputer($elementArray[0],$elementArray[1],$elementArray[2],$elementArray[3],trim($elementArray[4]));
 				printf("%s<br>\n",$pbinfo);
 				break;
+			case 6:
+				$pbinfo=addComputer($elementArray[0],$elementArray[1],$elementArray[2],$elementArray[3],$elementArray[4],trim($elementArray[5]));
+				printf("%s<br>\n",$pbinfo);
+				break;
 			default:
 				$pbinfo="Invalid Row: $line";
 				printf("%s<br>\n",$pbinfo);

@@ -4,10 +4,10 @@ function authUser($user, $passwd) {
 	include "./authConf.php";
 	$query = "SELECT * FROM $wgdb.$authTable WHERE user = '$user' AND password = PASSWORD('$passwd')";
 	//echo "$query <br>";
-	$result = mysql_query($query) or die(mysql_error());
-	if (mysql_num_rows($result) == 1) {
+	$result = mysqli_query($query) or die(mysqli_error());
+	if (mysqli_num_rows($result) == 1) {
 		//the user and pass match
-		$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+		$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
 		$_SESSION['user'] = $user;
 		$_SESSION['level'] = $recordArray['level'];
 		return ($_SESSION['level']);
@@ -16,43 +16,43 @@ function authUser($user, $passwd) {
 
 function addUser($ruser, $rpassword, $rlevel) {
 	include "./authConf.php";
-	if ($rpassword) mysql_query("REPLACE INTO $wgdb.$authTable VALUES('$ruser',PASSWORD('$rpassword'),'$rlevel')") or die(mysql_error());
+	if ($rpassword) mysqli_query("REPLACE INTO $wgdb.$authTable VALUES('$ruser',PASSWORD('$rpassword'),'$rlevel')") or die(mysqli_error());
 	else {
 		$query = "UPDATE auth SET level=$rlevel WHERE user='$ruser'"; 
-		mysql_query($query) or die(mysql_error());
-		if (mysql_affected_rows() != 1) die("Database consistency error\n");
+		mysqli_query($query) or die(mysqli_error());
+		if (mysqli_affected_rows() != 1) die("Database consistency error\n");
 /*		$query = "SELECT * FROM $authTable WHERE user = '$ruser'";
-    	$result = mysql_query($query) or die(mysql_error());
-    	if (mysql_num_rows($result) == 1) {
-    		$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+    	$result = mysqli_query($query) or die(mysqli_error());
+    	if (mysqli_num_rows($result) == 1) {
+    		$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
     		$rpassword = $recordArray['password'];
     	}
     	else die("Database consistency error\n");
     	echo "addUser full: REPLACE INTO $authTable VALUES('$ruser','$rpassword','$rlevel')";
-    	mysql_query("REPLACE INTO $authTable VALUES('$ruser','$rpassword','$rlevel')") or die(mysql_error());
+    	mysqli_query("REPLACE INTO $authTable VALUES('$ruser','$rpassword','$rlevel')") or die(mysqli_error());
 */
 	}
 	/*
-	else mysql_query("REPLACE INTO $authTable (user,level) VALUES('$ruser','$rlevel')") or die(mysql_error());
+	else mysqli_query("REPLACE INTO $authTable (user,level) VALUES('$ruser','$rlevel')") or die(mysqli_error());
     if (!$rpassword) {
     	$query = "SELECT 'password' FROM $authTable WHERE user = '$ruser'";
-    	$result = mysql_query($query) or die(mysql_error());
-    	if (mysql_num_rows($result) == 1) {
-    		$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+    	$result = mysqli_query($query) or die(mysqli_error());
+    	if (mysqli_num_rows($result) == 1) {
+    		$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
     		$rpassword = $recordArray['password'];
     	}
     	else die("Database consistency error\n");
     }
-	mysql_query("REPLACE INTO $authTable VALUES('$ruser',PASSWORD('$rpassword'),'$rlevel')") or die(mysql_error());
-	$rows = mysql_affected_rows();
+	mysqli_query("REPLACE INTO $authTable VALUES('$ruser',PASSWORD('$rpassword'),'$rlevel')") or die(mysqli_error());
+	$rows = mysqli_affected_rows();
     if ($rows == 1) return("$rname Added to user database"); else return("$rname Updated in user database");
 	*/
 }
 
 function delUser($ruser) {
 	include "./authConf.php";
-	mysql_query("DELETE FROM $wgdb.$authTable WHERE user LIKE '$ruser'") or die(mysql_error());
-	$rows = mysql_affected_rows();
+	mysqli_query("DELETE FROM $wgdb.$authTable WHERE user LIKE '$ruser'") or die(mysqli_error());
+	$rows = mysqli_affected_rows();
     if ($rows == 1) return("$rname deleted from database"); else return("$rname not deleted from database");
 }
 
@@ -61,7 +61,7 @@ function getUsers() {
 	require_once "./authConf.php";
 	$query = "SELECT * FROM $authTable";
 	//echo $query;
-	$result = mysql_query($query) or die(mysql_error());
+	$result = mysqli_query($query) or die(mysqli_error());
 	//echo "exiting getUsers";
 	return ($result);
 }
@@ -69,7 +69,7 @@ function getUsers() {
 function makeUserForm() {
 	require_once "./authConf.php";
 	$result=getUsers();
-	$recordArray = mysql_fetch_array($result,MYSQL_ASSOC);
+	$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
 	echo <<<EOM
 <form method="post">
 <input type=hidden name=create value="0">
@@ -80,7 +80,7 @@ function makeUserForm() {
 Manage Users.<br>
 <table>
 EOM;
-	while($recordArray = mysql_fetch_array($result,MYSQL_ASSOC)) {
+	while($recordArray = mysqli_fetch_array($result,mysqli_ASSOC)) {
 		if ($recordArray['user']==this.form.user.value) {
 			printf("<tr bgcolor=red><td>%s</td><td>%s</td></tr>",$recordArray['user'],$recordArray['level']);
 		}

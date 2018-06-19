@@ -9,8 +9,8 @@ if (isset($_POST["user"]) && isset($_POST["pass"])) {
 	$userName = $_POST["user"];
 	$userPass = $_POST["pass"];
 	
-	#mysql_connect(localhost,$user,$password);
-#	#@mysql_select_db($radb) or die("Unable to select database");
+	#mysqli_connect(localhost,$user,$password);
+#	#@mysqli_select_db($radb) or die("Unable to select database");
 	$result = authUser($userName,$userPass);
 	if ($result == 0) $errorMessage = "Login Failed.";
 	else header("Location: ../reload.html");

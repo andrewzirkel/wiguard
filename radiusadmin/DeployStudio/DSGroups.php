@@ -66,8 +66,8 @@ DSSyncGroupData();
 DSClearStaleGroups();
 $workflows = DSGetWorkflows();
 $query = "SELECT * FROM $wgdb.DSGroups ORDER BY DSGroup";
-$result = mysql_query($query) or die("$query - " . mysql_error());
-while($row = mysql_fetch_assoc($result)) {
+$result = mysqli_query($query) or die("$query - " . mysqli_error());
+while($row = mysqli_fetch_assoc($result)) {
 	if ($edit == $row['id']) printRow($row['id'],$row['DSGroup'],$row['DSWorkflow'],$workflows,TRUE);
 	else printRow($row['id'],$row['DSGroup'],$row['DSWorkflow'],$workflows,false);
 }
