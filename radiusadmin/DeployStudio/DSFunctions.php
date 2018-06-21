@@ -10,8 +10,8 @@ $DSComputersCache=null;
 function DSIntegration() {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
-	$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
+	$recordArray = $mysqli->fetch_array(MYSQLI_ASSOC);
 	if ($recordArray['DSIntegrate']) return(true);
 	else return (false);
 }
@@ -20,8 +20,8 @@ function DSIntegration() {
 function DSGetAdminUser() {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
-	$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
+	$recordArray = mysqli_fetch_array($result,MYSQLI_ASSOC);
 	return($recordArray['DSAdminUser']);
 }
 
@@ -29,8 +29,8 @@ function DSGetAdminUser() {
 function DSGetAdminPass() {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
-	$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
+	$recordArray = mysqli_fetch_array($result,MYSQLI_ASSOC);
 	return($recordArray['DSAdminPassword']);
 }
 
@@ -39,8 +39,8 @@ function DSGetAdminPass() {
 function DSFormatURL($path) {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
-  $result = mysqli_query($query) or die("$query - " . mysqli_error());
-  $recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
+  $recordArray = mysqli_fetch_array($result,MYSQLI_ASSOC);
 	return($recordArray['DSServerURL'] . "$path"); 
 }
 
@@ -227,7 +227,7 @@ function DSGetComputerEntry($sn){
 function DSGetWorkflows() {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSWorkflows";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 	$a=array();
 	while($row = mysqli_fetch_assoc($result)) {
 		$a[$row['ID']]["title"] = $row['title'];
@@ -245,13 +245,13 @@ function DSSyncWorkflows() {
 	foreach ($currentWorkflows as $key => $element) {
 		if (! array_key_exists($key,$workflows)) {
 			$query = "DELETE FROM $wgdb.DSWorkflows WHERE ID=\"$key\"";
-			mysqli_query($query) or die("$query - " . mysqli_error());
+			$mysqli->query($query) or die("$query - " . $mysqli->error);
 		}
 	}
 	foreach ($workflows as $key => $element) {
-		$query = "REPLACE INTO $wgdb.DSWorkflows SET ID=\"$key\",description=\"" . $element['description'] . "\",title=\"" . $element['title'] . "\"";
+		$query = "REPLACE INTO $wgdb.DSWorkflows SET ID=\"$key\",description=\"" . (array_key_exists('description', $element) ? $element['description'] : '') . "\",title=\"" . $element['title'] . "\"";
 		if (array_key_exists('group',$element)) $query = $query . ",DSWorkflows.group=\"" . $element['group'] . "\"";
-		mysqli_query($query) or die("$query - " . mysqli_error());
+		$mysqli->query($query) or die("$query - " . $mysqli->error);
 	}
 }
 
@@ -265,7 +265,7 @@ function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 	if(strcmp($DSWorkflow,"none")==0) $DSWorkflow = null;
 	if ($DSWorkflow) $query = "UPDATE $wgdb.DSGroups SET DSWorkflow='$DSWorkflow' WHERE id='$id'";
 	else $query = "UPDATE $wgdb.DSGroups SET DSWorkflow='null' WHERE id='$id'";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " .  $mysqli->error);
 	if ($updateDS) {
 	echo <<<EOM
 <!-- Progress bar holder -->
@@ -274,7 +274,7 @@ function DSSetWorkflow($id,$DSWorkflow,$updateDS=true) {
 <div id="information" style="width"></div>
 EOM;
 		$query = "SELECT * FROM $wgdb.DSGroups WHERE id=$id";
-		$result = mysqli_query($query) or die("$query - " . mysqli_error());
+		$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 		$row = mysqli_fetch_assoc($result);
 		$url=DSFormatURL("computers/groups/set/entry")."?id=".$row['DSGroup'];
 		//get current group data
@@ -293,7 +293,7 @@ EOM;
 		$pbcount=0;
 		foreach ($computers['computers'] as $key => $element) {
 			$pbcount++;
-			if (strcmp($element['dstudio-group'],$row['DSGroup']) == 0) {
+			if (array_key_exists('dstudio-group', $element) && (strcmp($element['dstudio-group'],$row['DSGroup']) == 0)) {
 				$pbpercent=intval($pbcount/$pbtotal * 100)."%";
 				$pbinfo="Processing " . $element['dstudio-hostname'];
 				echo '<script language="javascript">
@@ -321,7 +321,7 @@ EOM;
 function DSQueryGroup($group) {
 	include '../conf.php';	
 	$query = "SELECT * FROM $wgdb.DSGroups WHERE STRCMP(DSGroup,'$group') = 0"; //group is reserved word, must quote
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 	$num_rows = mysqli_num_rows($result);
 	$row = mysqli_fetch_assoc($result);
 	switch ($num_rows) {
@@ -346,7 +346,7 @@ function DSAddGroup($group) {
 	$group = trim($group);
 	if (!is_array(DSQueryGroup($group))) { //group doens't exist
 		$query = "INSERT INTO $wgdb.DSGroups SET id=null,DSGroup='$group'";
-		mysqli_query($query) or die("$query - " . mysqli_error());
+		$mysqli->query($query) or die("$query - " . $mysqli->error);
 		$created=true;
 	}
 
@@ -376,7 +376,7 @@ function DSGenerateGroups() {
 	$groups=array();
 	//get computer tuples
 	$query = "SELECT * FROM $wgdb.computers";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 	while($computer = mysqli_fetch_assoc($result)) {
 		$group = DSParseGroup($computer['ComputerName']);
 		if ($group) {
@@ -386,11 +386,11 @@ function DSGenerateGroups() {
 	}
 	//clear stale groups
 	$query = "SELECT * FROM $wgdb.DSGroups";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " .  $mysqli->error);
 	while ($currentGroup = mysqli_fetch_assoc($result)) {
 		if (!in_array($currentGroup['DSGroup'],$groups)) {
 			$query = "DELETE FROM $wgdb.DSGroups where id=$currentGroup[id]";
-			mysqli_query($query) or die("$query - " . mysqli_error());
+			$mysqli->query($query) or die("$query - " . $mysqli->error);
 		}
 	}
 	return($created);
@@ -401,11 +401,11 @@ function DSClearStaleGroups() {
 	$computers=DSGetComputers();
 	if (! is_array($computers['groups'])) return;
 	$query = "SELECT * FROM $wgdb.DSGroups";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 	while ($currentGroup = mysqli_fetch_assoc($result)) {
 		if (!array_key_exists($currentGroup['DSGroup'],$computers['groups'])) {
 			$query = "DELETE FROM $wgdb.DSGroups where id=$currentGroup[id]";
-			mysqli_query($query) or die("$query - " . mysqli_error());
+			$mysqli->query($query) or die("$query - " . $mysqli->error);
 		}
 	}
 }
@@ -572,7 +572,7 @@ function DSSync() {
 <div id="information" style="width"></div>
 EOM;
 	$query = "SELECT * FROM $wgdb.computers";
-	$result = mysqli_query($query) or die("$query - " . mysqli_error());
+	$result = $mysqli->query($query) or die("$query - " .  $mysqli->error);
 	$pbtotal=mysqli_num_rows($result);
 	$pbcount=0;
 	//Need to do this to set up initial DS Database, otherwise can't craete groups.

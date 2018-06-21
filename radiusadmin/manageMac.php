@@ -17,7 +17,7 @@ function search($text,$target) {
 	if ($result) { //search text is not mac address
 		//computers table
 		$query = "SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '%$text%' OR sn LIKE '%$text%' ORDER BY ComputerName";
-		$result = mysqli_query($query) or die("$query -" . mysqli_error());
+		$result = $mysqli->query($query) or die("$query -" . $mysqli->error);
 		while ($row = mysqli_fetch_assoc($result)) {
 			if ($target == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],TRUE);
 			else printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],FALSE);
@@ -28,7 +28,7 @@ function search($text,$target) {
 	else {
 		//computers table
 		$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC Like '$text' OR WiMAC like '$text' ORDER BY ComputerName";
-		$result = mysqli_query($query) or die(mysqli_error());
+		$result = $mysqli->query($query) or die($mysqli->error);
 		while ($row = mysqli_fetch_assoc($result)) {
 			if ($target == $row['id']) printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],TRUE);
 			else printRow($row['id'],$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['filter-id'],FALSE);

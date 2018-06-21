@@ -1,4 +1,6 @@
 Fixes:
+2.5.4
+- convert to mysqli
 2.5.3
 - allow use of id in csv import (addmac)
 2.5.1

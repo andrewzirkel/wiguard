@@ -4,10 +4,10 @@ function authUser($user, $passwd) {
 	include "./authConf.php";
 	$query = "SELECT * FROM $wgdb.$authTable WHERE user = '$user' AND password = PASSWORD('$passwd')";
 	//echo "$query <br>";
-	$result = mysqli_query($query) or die(mysqli_error());
+	$result = $mysqli->query($query);
 	if (mysqli_num_rows($result) == 1) {
 		//the user and pass match
-		$recordArray = mysqli_fetch_array($result,mysqli_ASSOC);
+		$recordArray = mysqli_fetch_array($result,MYSQLI_ASSOC);
 		$_SESSION['user'] = $user;
 		$_SESSION['level'] = $recordArray['level'];
 		return ($_SESSION['level']);
@@ -19,8 +19,8 @@ function addUser($ruser, $rpassword, $rlevel) {
 	if ($rpassword) mysqli_query("REPLACE INTO $wgdb.$authTable VALUES('$ruser',PASSWORD('$rpassword'),'$rlevel')") or die(mysqli_error());
 	else {
 		$query = "UPDATE auth SET level=$rlevel WHERE user='$ruser'"; 
-		mysqli_query($query) or die(mysqli_error());
-		if (mysqli_affected_rows() != 1) die("Database consistency error\n");
+		$mysqli->query($query);
+		if (mysqli_affected_rows($mysqli) != 1) die("Database consistency error\n");
 /*		$query = "SELECT * FROM $authTable WHERE user = '$ruser'";
     	$result = mysqli_query($query) or die(mysqli_error());
     	if (mysqli_num_rows($result) == 1) {
@@ -51,8 +51,11 @@ function addUser($ruser, $rpassword, $rlevel) {
 
 function delUser($ruser) {
 	include "./authConf.php";
-	mysqli_query("DELETE FROM $wgdb.$authTable WHERE user LIKE '$ruser'") or die(mysqli_error());
-	$rows = mysqli_affected_rows();
+	$query = "DELETE FROM $wgdb.$authTable WHERE user LIKE '$ruser'";
+	$mysqli->query($query);
+	$query = "DELETE FROM $wgdb.$authTable WHERE user LIKE '$ruser'";
+	$mysqli->query($query);
+	$rows = mysqli_affected_rows($mysqli);
     if ($rows == 1) return("$rname deleted from database"); else return("$rname not deleted from database");
 }
 

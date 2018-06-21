@@ -25,7 +25,7 @@ function validateIP($IP) {
 
 function queryMac($mac) {
 	include "./conf.php";
-	$result = mysqli_query("SELECT * FROM $radb.radcheck WHERE UserName LIKE '$mac'") or die("$query - " . mysqli_error());
+	$result = $mysqli->query("SELECT * FROM $radb.radcheck WHERE UserName LIKE '$mac'") or die("$query - " . $mysqli->error);
 	$row = mysqli_fetch_assoc($result);
 	if ($row == "") {
 		return("");
@@ -39,36 +39,36 @@ function addMac($mac) {
 	$result = queryMac($mac);
 	if ($result) return($result);
 	#what id to use:
-	$result = mysqli_query("SELECT MAX(id) FROM $radb.radcheck") or die("$query - " . mysqli_error());
+	$result = $mysqli->query("SELECT MAX(id) FROM $radb.radcheck") or die("$query - " . $mysqli->error);
 	$row = mysqli_fetch_assoc($result);
 	$id = $row['MAX(id)']+1;
-	mysqli_query("INSERT INTO $radb.radcheck VALUES('$id','$mac','Password','==','$mac')") or die("$query - " . mysqli_error());
+	$mysqli->query("INSERT INTO $radb.radcheck VALUES('$id','$mac','Password','==','$mac')") or die("$query - " . $mysqli->error);
 	return("$mac Added to radcheck.  ");
 }
 
 function addMacGP($mac,$gp) {
 	include "./conf.php";
-	mysqli_query("INSERT INTO $radb.radreply VALUES(null,'$mac','filter-id',':=','$gp')") or die("$query - " . mysqli_error());
+	$mysqli->query("INSERT INTO $radb.radreply VALUES(null,'$mac','filter-id',':=','$gp')") or die("$query - " . $mysqli->error);
 	return("Mac based Group Policy Updated for $mac.   ");
 }
 
 function deleteMac($mac) {
 	include "./conf.php";
-	@mysqli_select_db($radb) or die("Unable to select database");
-	mysqli_query("DELETE FROM $radb.radcheck WHERE UserName LIKE '$mac'") or die("$query - " . mysqli_error());
+	$mysqli->select_db($radb) or die("Unable to select database");
+	$mysqli->query("DELETE FROM $radb.radcheck WHERE UserName LIKE '$mac'") or die("$query - " . $mysqli->error);
 	return("$mac deleted from radcheck.  ");
 }
 
 function deleteMacGP($mac){
 	include "./conf.php";
-	@mysqli_select_db($radb) or die("Unable to select database");
-	mysqli_query("DELETE FROM $radb.radreply WHERE UserName LIKE '$mac'") or die("$query - " . mysqli_error());
+	$mysqli->select_db($radb) or die("Unable to select database");
+	$mysqli->query("DELETE FROM $radb.radreply WHERE UserName LIKE '$mac'") or die("$query - " . $mysqli->error);
 	return("Mac based Group Policy Deleted for $mac.   ");
 }
 
 function queryComputerName($mac) {
 	include "./conf.php";
-	$result = mysqli_query("SELECT * FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . mysqli_error());
+	$result = $mysqli->query("SELECT * FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . $mysqli->error);
 	$row = mysqli_fetch_assoc($result);
 	if ($row == "") {
 		return("");
@@ -86,10 +86,10 @@ function addComputerName($mac,$name) {
 	}
 	if (queryComputerName($mac) == "") {
 		addmac($mac);
-		mysqli_query("REPLACE INTO $wgdb.computername VALUES('$mac','$name')") or die("$query - " . mysqli_error());
+		$mysqli->query("REPLACE INTO $wgdb.computername VALUES('$mac','$name')") or die("$query - " . $mysqli->error);
 		return("Legacy $name added.  ");
 	} else {
-		mysqli_query("REPLACE INTO $wgdb.computername VALUES('$mac','$name')") or die("$query - " . mysqli_error());
+		$mysqli->query("REPLACE INTO $wgdb.computername VALUES('$mac','$name')") or die("$query - " . $mysqli->error);
 		return("Legacy $name updated.  ");
 	}
 }
@@ -100,8 +100,8 @@ function deleteComputerName($mac) {
 	if ($result != "") return($result);	
 	//remove from raddb
 	deleteMac($mac);
-	mysqli_query("DELETE FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . mysqli_error());
-	if (mysqli_affected_rows() == 1) return("$mac deleted.  ");
+	$mysqli->query("DELETE FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . $mysqli->error);
+	if ($mysqli->affected_rows == 1) return("$mac deleted.  ");
 	else return("ERROR: $mac in ComputerNames db");
 }
 
@@ -110,11 +110,11 @@ function cleanComputerName($name) {
 	include "./conf.php";
 	$count = 0;
 	$query = "SELECT * FROM $wgdb.computername WHERE ComputerName LIKE '$name'";
-	$result = mysqli_query($query);
+	$result = $mysqli->query($query);
 	while ($row = mysqli_fetch_assoc($result)) {
 		$mac = $row["MACAddress"];
 		deleteMac($mac);
-		mysqli_query("DELETE FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . mysqli_error());
+		$mysqli->query("DELETE FROM $wgdb.computername WHERE MACAddress LIKE '$mac'") or die("$query - " . $mysqli->error);
 		$count++;
 	}
 	return($count);
@@ -123,7 +123,7 @@ function cleanComputerName($name) {
 function queryComputer($name) {
 	if($name=="") return;
 	include "./conf.php";
-	$result = mysqli_query("SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '$name'") or die("$query - " . mysqli_error());
+	$result = $mysqli->query("SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '$name'") or die("$query - " . $mysqli->error);
 	$row = mysqli_fetch_assoc($result);
 	if ($row == "") {
 		return("");
@@ -134,12 +134,12 @@ function queryName($mac,$legacy=true) {
 	if($mac=="") return;
 	include "./conf.php";
 	$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$mac' OR WiMAC LIKE '$mac'";
-	$result = mysqli_query($query);
+	$result = $mysqli->query($query);
 	$row = mysqli_fetch_assoc($result);
 	if ($row) return($row['ComputerName']);
 	if($legacy) {
 	  $query = "SELECT * FROM $wgdb.computername WHERE MACAddress LIKE '$mac'";
-	  $result = mysqli_query($query);
+	  $result = $mysqli->query($query);
 	  $row = mysqli_fetch_assoc($result);
 		if ($row) return($row['ComputerName']);
 	}
@@ -149,7 +149,7 @@ function querySN($sn) {
 	if($sn=="") return;
 	include "./conf.php";
 	$query = "SELECT * FROM $wgdb.computers WHERE sn LIKE '$sn'";
-	$result = mysqli_query($query);
+	$result = $mysqli->query($query);
 	$row = mysqli_fetch_assoc($result);
 	//if ($row) return("$row['ETHMAC'],$row['WiMAC'],$row['ComputerName'],$row['sn'],$row['id']");
 	if ($row) $a =array("ETHMAC" => $row['ETHMAC'],"WiMAC"=>$row['WiMAC'],"ComputerName" => $row['ComputerName'],"sn" => $row['sn'],"id" => $row['id']);
@@ -165,12 +165,12 @@ function searchComputers($text){
 	if ($result) { //search text is not mac address
 		//computers table
 		$query = "SELECT * FROM $wgdb.computers WHERE ComputerName LIKE '%$text%' OR sn LIKE '%$text%' ORDER BY ComputerName";
-		$result = mysqli_query($query) or die("$query -" . mysqli_error());
+		$result = $mysqli->query($query) or die("$query -" . $mysqli->error);
 		return(mysqli_fetch_object($result));
 	} else {
 		//computers table
 		$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC Like '$text' OR WiMAC like '$text' ORDER BY ComputerName";
-		$result = mysqli_query($query) or die(mysqli_error());
+		$result = $mysqli->query($query) or die($mysqli->error);
 		return(mysqli_fetch_object($result));
 	}
 	
@@ -202,13 +202,13 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 		//find matching tuple by mac address pair unless null
 		if ($sn) {
 			$query = "SELECT id FROM $wgdb.computers WHERE sn LIKE '$sn'";
-			$result = mysqli_query($query);
+			$result = $mysqli->query($query);
 			if (mysqli_num_rows($result) > 1) return("$name - $sn Multiple Serial Numbers Matched.  ");
 			$row = mysqli_fetch_assoc($result);
 			if ($row) $id = $row['id'];
 		} elseif ($eth0 && $eth1) {
 		  	$query = "SELECT id FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0' AND WiMAC LIKE '$eth1'";
-		  	$result = mysqli_query($query);
+		  	$result = $mysqli->query($query);
 		  	$row = mysqli_fetch_assoc($result);
 		  	if ($row) $id = $row['id'];
 		}
@@ -216,7 +216,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 	if ($id) {
 		$updated=true;
 		$query="SELECT * FROM $wgdb.computers WHERE id=$id";
-		$result = mysqli_query($query) or die("$query - " . mysqli_error());
+		$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 		$row = mysqli_fetch_assoc($result);
 		//check if macs have changed, if so then delete from radcheck
 		if(strcmp($row['ETHMAC'],$eth0) <> 0) deleteMac($row['ETHMAC']);
@@ -224,7 +224,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 		if(strcmp($row['filter-id'],$gp) <> 0) deleteMacGP($eth0);
 		if(strcmp($row['filter-id'],$gp) <> 0) deleteMacGP($eth1);
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',$id,'$gp')";
-		mysqli_query($query) or die("$query - " . mysqli_error());
+		$mysqli->query($query) or die("$query - " . $mysqli->error);
 		//Must delete from DS if sn is changed.  Only possible if already in computers.
 		if (strcmp($row['sn'],$sn) <> 0) {
 			chdir("DeployStudio");
@@ -241,7 +241,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 		if ($eth1) $dup=queryName($eth1,false);
 		if($dup) return("$name ERROR: $dup has $eth1.  ");
 		$query="REPLACE INTO $wgdb.computers VALUES('$eth0','$eth1','$name','$sn',null,'$gp')";
-		mysqli_query($query) or die("$query - " . mysqli_error());
+		$mysqli->query($query) or die("$query - " . $mysqli->error);
 	}
 	//add macs to radius
 	if ($eth0) {
@@ -265,32 +265,32 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 
 function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 	include "./conf.php";
-	@mysqli_select_db($wgdb) or die("$query - " . mysqli_error());
+	@$mysqli->select_db($wgdb) or die("$query - " . $mysqli->error);
 	if (!$id) {
 		if ($sn) {
 			$query = "SELECT * FROM $wgdb.computers WHERE sn LIKE '$sn'";
-			$result = mysqli_query($query) or die("$query - " . mysqli_error());
+			$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 			$row = mysqli_fetch_assoc($result);
 			$id = $row['id'];
 			if(!$id) return("$ComputerName with sn $sn doesn't exit");
 		} elseif($eth0){
 			$query = "SELECT * FROM $wgdb.computers WHERE ETHMAC LIKE '$eth0'";
-			$result = mysqli_query($query) or die("$query - " . mysqli_error());
+			$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 			$row = mysqli_fetch_assoc($result);
 			$id = $row['id'];
 			if(!$id) return("$ComputerName doesn't exit");
 		}
 		elseif($eth1) {
 			$query = "SELECT * FROM $wgdb.computers WHERE WiMAC LIKE '$eth1'";
-			$result = mysqli_query($query) or die("$query - " . mysqli_error());
+			$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
 			$row = mysqli_fetch_assoc($result);
 			$id = $row['id'];
 			if(!$id) return("$ComputerName doesn't exit");
 		} else return("No valid selection criteria for deleteComputer()");
 	}
 	$query = "DELETE FROM $wgdb.computers WHERE id=$id";
-	mysqli_query($query) or die("$query - " . mysqli_error());
-	if (mysqli_affected_rows() == 1) echo "$ComputerName deleted.  ";
+	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
+	if ($result->num_rows == 1) echo "$ComputerName deleted.  ";
 	else return("ERROR: $ComputerName in Computers db");
 	//remove from legacy database for completeness
 	if (queryComputerName($eth0) != "") deleteComputerName($eth0);
