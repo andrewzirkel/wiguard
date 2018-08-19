@@ -11,7 +11,7 @@ function DSIntegration() {
 	include '../conf.php';
 	$query = "SELECT * FROM $wgdb.DSConfig where ID=1";
 	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
-	$recordArray = $mysqli->fetch_array(MYSQLI_ASSOC);
+	$recordArray = $result->fetch_array(MYSQLI_ASSOC);
 	if ($recordArray['DSIntegrate']) return(true);
 	else return (false);
 }
@@ -75,6 +75,7 @@ function DSGetURL($url) {
 	include '../conf.php';
 	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
+	if($debug)  curl_setopt($ch, CURLOPT_PROXY, $proxy);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 	curl_setopt($ch,CURLOPT_TIMEOUT,60);
@@ -95,6 +96,7 @@ function DSWriteData($url,$data=null) {
 	include '../conf.php';
 	$url = DSNormalizeURl($url);
 	$ch = curl_init($url);
+	if($debug)  curl_setopt($ch, CURLOPT_PROXY, $proxy);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml'));
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

@@ -265,7 +265,7 @@ function addComputer($eth0,$eth1,$name,$sn=null,$gp=null,$id=null) {
 
 function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 	include "./conf.php";
-	@$mysqli->select_db($wgdb) or die("$query - " . $mysqli->error);
+	$mysqli->select_db($wgdb) or die("$query - " . $mysqli->error);
 	if (!$id) {
 		if ($sn) {
 			$query = "SELECT * FROM $wgdb.computers WHERE sn LIKE '$sn'";
@@ -290,7 +290,7 @@ function deleteComputer($eth0,$eth1,$ComputerName,$sn=NULL,$gp=NULL,$id=NULL) {
 	}
 	$query = "DELETE FROM $wgdb.computers WHERE id=$id";
 	$result = $mysqli->query($query) or die("$query - " . $mysqli->error);
-	if ($result->num_rows == 1) echo "$ComputerName deleted.  ";
+	if ($result) echo "$ComputerName deleted.  ";
 	else return("ERROR: $ComputerName in Computers db");
 	//remove from legacy database for completeness
 	if (queryComputerName($eth0) != "") deleteComputerName($eth0);

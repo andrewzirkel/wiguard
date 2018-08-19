@@ -1,4 +1,10 @@
+Make sure ths is in deploy studio preferences under security:
+                <key>allow3PClients</key>
+                <string>YES</string>
+
 Fixes:
+2.5.5
+- fix deploystudio bugs
 2.5.4
 - convert to mysqli
 2.5.3

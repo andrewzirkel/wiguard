@@ -1,10 +1,11 @@
 <?php
-$version="2.5.4";
+$version="2.5.5";
 $radb="radius";
 $wgdb="wiguard";
 $dbuser="wiguard";
 $dbpass="wiguard";
 $debug=FALSE;
+$proxy='';
 
 $groupDelim='-';
 $groupDefault='staff';
