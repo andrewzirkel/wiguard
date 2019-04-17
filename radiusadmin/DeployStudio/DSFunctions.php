@@ -78,9 +78,11 @@ function DSGetURL($url) {
 	if($debug)  curl_setopt($ch, CURLOPT_PROXY, $proxy);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-	curl_setopt($ch,CURLOPT_TIMEOUT,60);
+	curl_setopt($ch, CURLOPT_TIMEOUT,60);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	$creds = DSGetAdminUser() . ":" . DSGetAdminPass();
-	curl_setopt($ch,CURLOPT_USERPWD,"$creds");
+	curl_setopt($ch, CURLOPT_USERPWD,"$creds");
 	$curlResult = curl_exec($ch);
 	if($debug) echo "<pre>In DSGetURL\n" . $url. PHP_EOL . $curlResult . "\n</pre>";
 	$r=curl_getinfo($ch);
@@ -100,10 +102,12 @@ function DSWriteData($url,$data=null) {
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml'));
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	$creds = DSGetAdminUser() . ":" . DSGetAdminPass();
-	curl_setopt($ch,CURLOPT_USERPWD,"$creds");
+	curl_setopt($ch, CURLOPT_USERPWD,"$creds");
 	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch,CURLOPT_POSTFIELDS,"$data");
+	curl_setopt($ch, CURLOPT_POSTFIELDS,"$data");
 	$curlResult = curl_exec($ch);
 	if($debug) echo "<pre>In DSWriteData\n" . $url. PHP_EOL . $data . PHP_EOL . $curlResult . "\n</pre>";
 	$r=curl_getinfo($ch);

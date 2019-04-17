@@ -1,8 +1,10 @@
-Make sure ths is in deploy studio preferences under security:
+Make sure ths is in /Library/Preferences/com.deploystudio.server.plist under the security section:
                 <key>allow3PClients</key>
                 <string>YES</string>
 
 Fixes:
+2.5.6
+- allow self signed certs
 2.5.5
 - fix deploystudio bugs
 2.5.4
