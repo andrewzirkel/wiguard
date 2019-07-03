@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!($_SESSION['level'] > 2)) {
+if ( !(isset($_SESSION['level']) && ($_SESSION['level'] >= 3))) {
 	echo <<<EOM
 <html>
 <head>
