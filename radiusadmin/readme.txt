@@ -3,6 +3,8 @@ Make sure ths is in /Library/Preferences/com.deploystudio.server.plist under the
                 <string>YES</string>
 
 Fixes:
+2.5.7
+- bug filxes in clients list
 2.5.6
 - allow self signed certs
 2.5.5

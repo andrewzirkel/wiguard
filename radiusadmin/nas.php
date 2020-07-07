@@ -12,14 +12,14 @@ include "./nasFunctions.php";
 #mysqli_connect(localhost,$user,$password);
 #@mysqli_select_db($wgdb) or die("Unable to select database");
 
-$rid = $_POST['rid'];
+if (isset($_POST['rid'])) $rid = $_POST['rid']; else $rid = "";
 //$rclient=$_POST['rclient'];
-if ($_POST['create']=='1'){
+if (isset($_POST['create']) && $_POST['create']=='1'){
         /*echo "$_POST['rclient'],$_POST['rname'],$_POST['rpassword']";*/
 	addClient($rid,$_POST['rclient'],$_POST['rname'],$_POST['rpassword']);
 	$rid="";
 }
-if ($_POST['remove']=='1'){
+if (isset($_POST['remove']) && $_POST['remove']=='1'){
 	delClient($rid);
 	$rid="";
 }
@@ -50,12 +50,12 @@ while($recordArray = mysqli_fetch_array($result,MYSQLI_ASSOC)) {
 		printf("<tr bgcolor=red><td><input type=\"text\" name=\"rclient\" value=\"%s\"></td><td><input type=\"text\" name=\"rname\" value=\"%s\"></td><td><input type=\"password\" name=\"rpassword\"></td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\"><input type=\"Submit\" class=\"button\" value=\"Remove\" OnClick=\"this.form.remove.value='1'\"></td></tr>\n",$recordArray['nasname'],$recordArray['shortname']);
 	} else printf("<tr><td>%s</td><td>%s</td><td>****</td><td><input type=\"Submit\" class=\"button\" value=\"Edit\" OnClick=\"this.form.rid.value='%s'\"></td></tr>\n",$recordArray['nasname'],$recordArray['shortname'],$recordArray['id']);
 }
-if (!$rid && $_POST['add']=='1') printf("<tr bgcolor=red><td><input type=\"text\" name=\"rclient\"></td><td><input type=\"text\" name=\"rname\"></td><td><input type=\"password\" name=\"rpassword\"></td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\">\n");
-if (!$rid && $_POST['add']!='1') echo "<tr><td></td><td></td><td></td><td><input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\"></td></tr>";
+if (!$rid && isset($_POST['add']) && $_POST['add']=='1') printf("<tr bgcolor=red><td><input type=\"text\" name=\"rclient\"></td><td><input type=\"text\" name=\"rname\"></td><td><input type=\"password\" name=\"rpassword\"></td><td><input type=\"Submit\" class=\"button\" value=\"Save\" OnClick=\"this.form.create.value='1'\">\n");
+if (!$rid && isset($_POST['add']) && $_POST['add']!='1') echo "<tr><td></td><td></td><td></td><td><input type=\"Submit\" class=\"button\" value=\"Add\" OnClick=\"this.form.add.value='1'\"></td></tr>";
 ?>
 </table>
 <?php 
-if ($rid || $_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.rid.value=''\">");
+if ($rid || isset($_POST['add']) && $_POST['add']) printf("<input type=\"Submit\" class=\"button\" value=\"Cancel\" OnClick=\"this.form.rid.value=''\">");
 ?>
 </form>
 </body>

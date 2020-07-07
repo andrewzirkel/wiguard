@@ -9,13 +9,14 @@ function addClient($rid,$rclient, $rname, $rpassword) {
 	if ($rpassword) $query = "REPLACE INTO $radb.nas VALUES('$rid','$rclient','$rname','other',NULL, '$rpassword',NULL,'RADIUS Client')";
 	*/
 	else $query = "UPDATE $radb.nas SET shortname='$rname' WHERE nasname='$rclient'";
-        mysqli_query($query) or die(mysqli_error());
+	$result = $mysqli->query($query) or die($mysqli->error);
 }
 
 function delClient($rid) {
 	include "./conf.php";
-	mysqli_query("DELETE FROM $radb.nas WHERE id LIKE '$rid'") or die(mysqli_error());
-	$rows = mysqli_affected_rows();
+	$query = "DELETE FROM $radb.nas WHERE id LIKE '$rid'";
+	$result = $mysqli->query($query) or die($mysqli->error);
+	$rows = $mysqli->affected_rows;
     if ($rows == 1) return("$rid deleted from database"); else return("$rid not deleted from database");
 }
 ?>
